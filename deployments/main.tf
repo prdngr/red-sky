@@ -46,7 +46,7 @@ resource "aws_security_group" "this" {
   description = "Nessus on Demand"
 }
 
-# Incoming SSH & outgoing ANY is always allowed.
+# Always allowing incoming SSH and outgoing ANY.
 
 resource "aws_vpc_security_group_ingress_rule" "ingress_ssh" {
   security_group_id = aws_security_group.this.id
@@ -64,13 +64,13 @@ resource "aws_vpc_security_group_egress_rule" "egress_any" {
   cidr_ipv4         = "0.0.0.0/0"
 }
 
-# (Optional) allow-listing an IP address for incoming HTTPS.
+# (Optional) allow-listing incoming HTTPS from source IP.
 
 resource "aws_vpc_security_group_ingress_rule" "ingress_https" {
-  count             = var.allow_source_ip ? 1 : 0
+  count             = var.allowed_ip == null ? 0 : 1
   security_group_id = aws_security_group.this.id
   from_port         = 443
   to_port           = 8834
   ip_protocol       = "tcp"
-  cidr_ipv4         = var.source_ip
+  cidr_ipv4         = var.allowed_ip
 }

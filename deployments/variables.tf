@@ -9,14 +9,8 @@ variable "deployment_name" {
   description = "A unique identifier of the deployment"
 }
 
-variable "source_ip" {
+variable "allowed_ip" {
   type        = string
-  default     = "127.0.0.1"
-  description = "The public IP address that will be used to access the deployment"
-}
-
-variable "allow_source_ip" {
-  type        = bool
-  default     = false
-  description = "Whether to allow incoming HTTPS traffic from the source IP"
+  default     = null
+  description = "If specified, allow-lists the IP address for ingress traffic"
 }
