@@ -33,7 +33,7 @@ resource "aws_key_pair" "this" {
 }
 
 resource "local_sensitive_file" "this" {
-  filename        = pathexpand("~/.nod/${var.deployment_name}/key.pem")
+  filename        = pathexpand("~/.nod/keys/${var.deployment_name}.pem")
   content        = tls_private_key.this.private_key_pem
   file_permission = "400"
 }
