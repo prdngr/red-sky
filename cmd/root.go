@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	groupDeployment = "deployment"
-	groupUtility    = "utility"
+	groupMain    = "main"
+	groupUtility = "utility"
 )
 
 var rootCmd = &cobra.Command{
@@ -39,7 +39,7 @@ func ensureNodDirectory(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	return fs.WalkDir(static.Terraform, "terraform", func(path string, entry fs.DirEntry, err error) error {
+	return fs.WalkDir(static.Terraform, internal.NOD_TERRAFORM_DIRECTORY, func(path string, entry fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -69,7 +69,7 @@ func ensureNodDirectory(cmd *cobra.Command, args []string) error {
 
 func init() {
 	rootCmd.AddGroup(
-		&cobra.Group{ID: groupDeployment, Title: "Deployment Commands"},
+		&cobra.Group{ID: groupMain, Title: "Main Commands"},
 		&cobra.Group{ID: groupUtility, Title: "Utility Commands"},
 	)
 
