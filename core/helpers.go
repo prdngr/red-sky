@@ -1,20 +1,24 @@
-package internal
+package core
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/user"
 	"path"
 )
 
+const (
+	nodDirectory         = ".nod"
+	directoryPermissions = 0755
+)
+
 func GetNodDirectory() string {
 	user, err := user.Current()
 	if err != nil {
-		log.Fatalf("Error getting current user: %s", err)
+		log.Fatalf("error getting current user: %s", err)
 	}
 
-	return path.Join(user.HomeDir, NOD_DIRECTORY)
+	return path.Join(user.HomeDir, nodDirectory)
 }
 
 func DirectoryExists(path string) (bool, error) {
@@ -29,8 +33,8 @@ func CreateDirectoryIfNotExists(path string) error {
 	if exists, err := DirectoryExists(path); err != nil {
 		return err
 	} else if !exists {
-		if err := os.MkdirAll(path, os.ModePerm); err != nil {
-			return fmt.Errorf("error creating directory: %w", err)
+		if err := os.MkdirAll(path, directoryPermissions); err != nil {
+			return err
 		}
 	}
 
