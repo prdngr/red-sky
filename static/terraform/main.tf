@@ -3,8 +3,8 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Name       = var.deployment_name
-      Deployment = "Nessus on Demand"
+      Workload   = "Nessus on Demand"
+      Deployment = var.deployment_name
     }
   }
 }
@@ -34,7 +34,7 @@ resource "aws_key_pair" "this" {
 
 resource "local_sensitive_file" "this" {
   filename        = pathexpand("~/.nod/keys/${var.deployment_name}.pem")
-  content        = tls_private_key.this.private_key_pem
+  content        = tls_private_key.this.private_key_openssh
   file_permission = "400"
 }
 
@@ -69,7 +69,7 @@ resource "aws_vpc_security_group_egress_rule" "egress_any" {
 resource "aws_vpc_security_group_ingress_rule" "ingress_https" {
   count             = var.allowed_ip == null ? 0 : 1
   security_group_id = aws_security_group.this.id
-  from_port         = 443
+  from_port         = 8834
   to_port           = 8834
   ip_protocol       = "tcp"
   cidr_ipv4         = var.allowed_ip
