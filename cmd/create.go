@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/prodingerd/nessus-on-demand/core"
 	"github.com/spf13/cobra"
 )
@@ -29,7 +30,12 @@ func runCreate(cmd *cobra.Command, args []string) {
 		log.Fatalf("error creating Terraform workspace: %s", err)
 	}
 
-	// tf.Plan(context.Background())
+	var variables = []tfexec.PlanOption{
+		tfexec.Var("aws_region=eu-central-1"),
+		tfexec.Var("deployment_name=" + deploymentId),
+	}
+
+	var _, _ = tf.Plan(context.Background(), variables...)
 	// tf.Apply(context.Background())
 }
 
