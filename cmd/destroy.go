@@ -22,11 +22,11 @@ to quickly create a Cobra application.`,
 }
 
 func runDestroy(cmd *cobra.Command, args []string) {
-	tf := core.InitializeTerraform()
+	tf := core.GetTerraformInstance()
 
 	for _, deploymentId := range args {
 		if err := tf.WorkspaceSelect(context.Background(), deploymentId); err != nil {
-			log.Fatalf("error selecting Terraform workspace")
+			log.Fatalf("error selecting Terraform workspace: %s", err)
 		}
 
 		if err := tf.Destroy(context.Background()); err != nil {

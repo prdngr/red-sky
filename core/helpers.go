@@ -1,42 +1,44 @@
 package core
 
 import (
+	"io/fs"
 	"log"
 	"os"
-	"os/user"
-	"path"
+
+	"github.com/adrg/xdg"
+	"github.com/prodingerd/nessus-on-demand/static"
 )
 
 const (
-	nodDirectory         = ".nod"
-	directoryPermissions = 0755
+	NodDir          = "nod/"
+	initializedFile = NodDir + ".initialized"
+	filePermissions = 0660
 )
 
-func GetNodDirectory() string {
-	user, err := user.Current()
-	if err != nil {
-		log.Fatalf("error getting current user: %s", err)
+func InitNodDirectory() {
+	if _, err := xdg.SearchDataFile(initializedFile); err == nil {
+		return
 	}
 
-	return path.Join(user.HomeDir, nodDirectory)
-}
-
-func DirectoryExists(path string) (bool, error) {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return false, nil
-	} else {
-		return true, err
-	}
-}
-
-func CreateDirectoryIfNotExists(path string) error {
-	if exists, err := DirectoryExists(path); err != nil {
-		return err
-	} else if !exists {
-		if err := os.MkdirAll(path, directoryPermissions); err != nil {
-			return err
+	if err := fs.WalkDir(static.Embeds, ".", func(path string, entry fs.DirEntry, err error) error {
+		if entry.IsDir() {
+			return nil
 		}
-	}
 
-	return nil
+		if data, err := static.Embeds.ReadFile(path); err != nil {
+			return err
+		} else {
+			if outputPath, err := xdg.DataFile(NodDir + path); err != nil {
+				return err
+			} else {
+				if err := os.WriteFile(outputPath, data, filePermissions); err != nil {
+					return err
+				}
+			}
+		}
+
+		return nil
+	}); err != nil {
+		log.Fatalf("error initializing NOD directory: %s", err)
+	}
 }

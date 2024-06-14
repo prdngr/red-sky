@@ -22,13 +22,13 @@ to quickly create a Cobra application.`,
 }
 
 func runList(cmd *cobra.Command, args []string) {
-	tf := core.InitializeTerraform()
+	tf := core.GetTerraformInstance()
 
 	if workspaces, _, err := tf.WorkspaceList(context.Background()); err != nil {
-		log.Fatalf("error listing Terraform workspaces")
+		log.Fatalf("error listing Terraform workspaces: %s", err)
 	} else {
 		if len(workspaces) == 1 {
-			return // TODO No active deployments.
+			fmt.Println("No active deployments")
 		}
 
 		for _, workspace := range workspaces {

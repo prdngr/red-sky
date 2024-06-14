@@ -3,8 +3,8 @@ package core
 import (
 	"context"
 	"log"
-	"path"
 
+	"github.com/adrg/xdg"
 	"github.com/hashicorp/go-version"
 	install "github.com/hashicorp/hc-install"
 	"github.com/hashicorp/hc-install/fs"
@@ -16,18 +16,47 @@ import (
 
 const (
 	versionConstraint   = "~> 1.8"
-	workingDirectory    = "terraform"
-	executableDirectory = "bin"
+	terraformWorkingDir = "terraform/"
+	terraformInstallDir = "bin/"
 )
 
-func InstallTerraform() {
+func GetTerraformInstance() *tfexec.Terraform {
+	tf, err := tfexec.NewTerraform(getTerraformWorkingDir(), getTerraformExecutable())
+	if err != nil {
+		log.Fatalf("error creating Terraform instance: %s", err)
+	}
+
+	if err := tf.Init(context.Background()); err != nil {
+		log.Fatalf("error initializing Terraform: %s", err)
+	}
+
+	return tf
+}
+
+func getTerraformWorkingDir() string {
+	workingDir, err := xdg.SearchDataFile(NodDir + terraformWorkingDir)
+	if err != nil {
+		log.Fatalf("error getting Terraform working directory: %s", err)
+	}
+
+	return workingDir
+}
+
+func getTerraformInstallDir() string {
+	installDir, err := xdg.CacheFile(NodDir + terraformInstallDir + "x")
+	if err != nil {
+		log.Fatalf("error creating Terraform install directory: %s", err)
+	}
+
+	return installDir
+}
+
+func getTerraformExecutable() string {
 	installer := install.NewInstaller()
+	installDirectory := getTerraformInstallDir()
 	versionConstraint := version.MustConstraints(version.NewConstraint(versionConstraint))
-	installDirectory := path.Join(GetNodDirectory(), executableDirectory)
 
-	CreateDirectoryIfNotExists(installDirectory)
-
-	executablePath, err := installer.Ensure(context.Background(), []src.Source{
+	executable, err := installer.Ensure(context.Background(), []src.Source{
 		&fs.Version{
 			Product:     product.Terraform,
 			ExtraPaths:  []string{installDirectory},
@@ -44,22 +73,5 @@ func InstallTerraform() {
 		log.Fatalf("error installing Terraform: %s", err)
 	}
 
-	Config.Terraform.ExecutablePath = executablePath
-}
-
-func InitializeTerraform() *tfexec.Terraform {
-	workingDirectory := path.Join(GetNodDirectory(), workingDirectory)
-	executablePath := Config.Terraform.ExecutablePath
-
-	tf, err := tfexec.NewTerraform(workingDirectory, executablePath)
-	if err != nil {
-		log.Fatalf("error creating Terraform instance: %s", err)
-	}
-
-	err = tf.Init(context.Background())
-	if err != nil {
-		log.Fatalf("error initializing Terraform: %s", err)
-	}
-
-	return tf
+	return executable
 }

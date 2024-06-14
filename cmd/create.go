@@ -23,13 +23,13 @@ to quickly create a Cobra application.`,
 
 func runCreate(cmd *cobra.Command, args []string) {
 	deploymentId := uuid.New().String()
-	tf := core.InitializeTerraform()
+	tf := core.GetTerraformInstance()
 
 	if err := tf.WorkspaceNew(context.Background(), deploymentId); err != nil {
 		log.Fatalf("error creating Terraform workspace: %s", err)
 	}
 
-	tf.Plan(context.Background())
+	// tf.Plan(context.Background())
 	// tf.Apply(context.Background())
 }
 
