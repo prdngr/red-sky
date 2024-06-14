@@ -26,7 +26,7 @@ func GetTerraformInstance() *tfexec.Terraform {
 		log.Fatalf("error creating Terraform instance: %s", err)
 	}
 
-	if err := tf.Init(context.Background()); err != nil {
+	if err := tf.Init(context.Background(), tfexec.Upgrade(true)); err != nil {
 		log.Fatalf("error initializing Terraform: %s", err)
 	}
 
