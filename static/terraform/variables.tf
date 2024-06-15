@@ -12,5 +12,27 @@ variable "deployment_name" {
 variable "allowed_ip" {
   type        = string
   default     = null
-  description = "If specified, allow-lists the IP address for ingress traffic"
+  description = "(Optional) the allow-listed IP address for ingress traffic"
+}
+
+variable "key_directory" {
+  type        = string
+  description = "The directory to store the SSH private key in"
+}
+
+variable "nessus_username" {
+  type        = string
+  description = "The Nessus admin username"
+}
+
+variable "nessus_password" {
+  type        = string
+  sensitive   = true
+  description = "The Nessus admin password"
+}
+
+variable "nessus_activiation_code" {
+  type        = string
+  sensitive   = true
+  description = "(Optional) the Nessus activiation code"
 }

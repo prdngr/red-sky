@@ -18,6 +18,25 @@ resource "aws_instance" "nessus" {
   instance_type          = "m5.xlarge"
   vpc_security_group_ids = [aws_security_group.this.id]
   key_name               = aws_key_pair.this.key_name
+
+  user_data = <<-EOF
+    #cloud-config
+
+    write_files:
+      - path: /opt/nessus/var/nessus/config.json
+        content: |
+          {
+            "user": {
+              "username": "${var.nessus_username}",
+              "password": "${var.nessus_password}",
+              "role": "system_administrator",
+              "type": "local"
+            }
+          }
+
+    runcmd:
+      - /opt/nessus/sbin/nessuscli fetch --register ${var.nessus_activiation_code}
+  EOF
 }
 
 # ------------------------------------------------------------------------------
@@ -33,8 +52,8 @@ resource "aws_key_pair" "this" {
 }
 
 resource "local_sensitive_file" "this" {
-  filename        = pathexpand("~/.nod/keys/${var.deployment_name}.pem")
-  content        = tls_private_key.this.private_key_openssh
+  filename        = pathexpand("${var.key_directory}/${var.deployment_name}.pem")
+  content         = tls_private_key.this.private_key_openssh
   file_permission = "400"
 }
 
