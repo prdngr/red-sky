@@ -8,16 +8,17 @@ import (
 )
 
 const (
+	version      = "0.1.0"
 	groupMain    = "main"
 	groupUtility = "utility"
 )
 
 var rootCmd = &cobra.Command{
-	Version: "0.1.0",
+	Version: version,
 	Use:     "nessus-on-demand",
 	Short:   "Manage just-in-time Nessus deployments in the cloud",
-	Long: `Nessus on Demand is a powerful CLI utility for managing Nessus instances in AWS.
-Built using Terraform, Nessus on Demand bootstraps infrastructure with surgical precision.`,
+	Long: `Nessus on Demand (NoD) is a powerful CLI utility for managing Nessus instances in AWS.
+Built using Terraform, NoD bootstraps scanning infrastructure with surgical precision.`,
 }
 
 func Execute() {
