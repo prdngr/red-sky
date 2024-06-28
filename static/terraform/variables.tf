@@ -34,5 +34,6 @@ variable "nessus_password" {
 variable "nessus_activiation_code" {
   type        = string
   sensitive   = true
+  default = "activiation-code"
   description = "(Optional) the Nessus activiation code"
 }

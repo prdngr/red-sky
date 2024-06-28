@@ -35,7 +35,10 @@ resource "aws_instance" "nessus" {
           }
 
     runcmd:
+      - while [ $(/opt/nessus/sbin/nessuscli lsuser | wc -l) -ne 1 ]; do sleep 5; done
+      - service nessusd stop
       - /opt/nessus/sbin/nessuscli fetch --register ${var.nessus_activiation_code}
+      - service nessusd start
   EOF
 }
 
