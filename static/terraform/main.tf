@@ -19,28 +19,6 @@ resource "aws_instance" "nessus" {
   instance_type          = "m5.xlarge"
   vpc_security_group_ids = [aws_security_group.this.id]
   key_name               = aws_key_pair.this.key_name
-
-  user_data = <<-EOF
-    #cloud-config
-
-    write_files:
-      - path: /opt/nessus/var/nessus/config.json
-        content: |
-          {
-            "user": {
-              "username": "${var.nessus_username}",
-              "password": "${var.nessus_password}",
-              "role": "system_administrator",
-              "type": "local"
-            }
-          }
-
-    runcmd:
-      - while [ $(/opt/nessus/sbin/nessuscli lsuser | wc -l) -ne 1 ]; do sleep 5; done
-      - service nessusd stop
-      - /opt/nessus/sbin/nessuscli fetch --register ${var.nessus_activiation_code}
-      - service nessusd start
-  EOF
 }
 
 # ------------------------------------------------------------------------------
@@ -93,5 +71,5 @@ resource "aws_vpc_security_group_ingress_rule" "ingress_https" {
   from_port         = 8834
   to_port           = 8834
   ip_protocol       = "tcp"
-  cidr_ipv4         = var.allowed_ip
+  cidr_ipv4         = "${var.allowed_ip}/32"
 }
