@@ -5,6 +5,7 @@ provider "aws" {
     tags = {
       Workload   = "Nessus on Demand"
       Deployment = var.deployment_name
+      ManagedBy  = "Terraform"
     }
   }
 }
@@ -68,7 +69,7 @@ resource "aws_security_group" "this" {
   description = "Nessus on Demand"
 }
 
-# Always allowing incoming SSH and outgoing ANY.
+# Always allow incoming SSH and outgoing ANY.
 
 resource "aws_vpc_security_group_ingress_rule" "ingress_ssh" {
   security_group_id = aws_security_group.this.id
@@ -80,13 +81,11 @@ resource "aws_vpc_security_group_ingress_rule" "ingress_ssh" {
 
 resource "aws_vpc_security_group_egress_rule" "egress_any" {
   security_group_id = aws_security_group.this.id
-  from_port         = 0
-  to_port           = 0
   ip_protocol       = "-1"
   cidr_ipv4         = "0.0.0.0/0"
 }
 
-# (Optional) allow-listing incoming HTTPS from source IP.
+# (Optional) allow-list incoming HTTPS from specified IP.
 
 resource "aws_vpc_security_group_ingress_rule" "ingress_https" {
   count             = var.allowed_ip == null ? 0 : 1
