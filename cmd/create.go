@@ -49,6 +49,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 
 	var _, err = tf.Plan(context.Background(), variables...)
 	if err != nil {
+		// TODO Make sure to cleanup the workspace.
 		log.Fatalf("error planning: %s", err)
 	}
 	// tf.Apply(context.Background())
