@@ -16,8 +16,8 @@ import (
 
 const (
 	versionConstraint   = "~> 1.8"
-	terraformWorkingDir = "terraform/"
-	terraformInstallDir = "bin/"
+	terraformWorkingDir = NodDir + "terraform/"
+	terraformInstallDir = NodDir + "bin/"
 )
 
 func GetTerraformInstance() *tfexec.Terraform {
@@ -34,7 +34,7 @@ func GetTerraformInstance() *tfexec.Terraform {
 }
 
 func getTerraformWorkingDir() string {
-	workingDir, err := xdg.SearchDataFile(NodDir + terraformWorkingDir)
+	workingDir, err := xdg.SearchDataFile(terraformWorkingDir)
 	if err != nil {
 		log.Fatalf("error getting Terraform working directory: %s", err)
 	}
@@ -43,7 +43,7 @@ func getTerraformWorkingDir() string {
 }
 
 func getTerraformInstallDir() string {
-	installDir, err := xdg.CacheFile(NodDir + terraformInstallDir + "x")
+	installDir, err := xdg.CacheFile(terraformInstallDir + "x")
 	if err != nil {
 		log.Fatalf("error creating Terraform install directory: %s", err)
 	}

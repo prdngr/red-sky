@@ -20,6 +20,7 @@ func runDestroy(cmd *cobra.Command, args []string) {
 
 	for _, deploymentId := range args {
 		if err := tf.WorkspaceSelect(context.Background(), deploymentId); err != nil {
+			// TODO This should not error but maybe raise a warning.
 			log.Fatalf("error selecting Terraform workspace: %s", err)
 		}
 

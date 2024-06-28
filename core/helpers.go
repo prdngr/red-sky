@@ -15,7 +15,16 @@ const (
 	filePermissions = 0660
 )
 
-func InitNodDirectory() {
+func GetNodDir() string {
+	nodDir, err := xdg.SearchDataFile(NodDir)
+	if err != nil {
+		log.Fatalf("error getting NoD directory: %s", err)
+	}
+
+	return nodDir
+}
+
+func InitNodDir() {
 	if _, err := xdg.SearchDataFile(initializedFile); err == nil {
 		return
 	}
@@ -39,6 +48,6 @@ func InitNodDirectory() {
 
 		return nil
 	}); err != nil {
-		log.Fatalf("error initializing NOD directory: %s", err)
+		log.Fatalf("error initializing NoD directory: %s", err)
 	}
 }
