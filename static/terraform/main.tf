@@ -1,3 +1,7 @@
+# ------------------------------------------------------------------------------
+# PROVIDER
+# ------------------------------------------------------------------------------
+
 provider "aws" {
   region = var.aws_region
 
@@ -54,7 +58,7 @@ resource "aws_vpc_security_group_ingress_rule" "ingress_ssh" {
   from_port         = 22
   to_port           = 22
   ip_protocol       = "tcp"
-  cidr_ipv4         = "0.0.0.0/0"
+  cidr_ipv4         = var.allowed_ip == null ? "0.0.0.0/0" : "${var.allowed_ip}/32"
 }
 
 resource "aws_vpc_security_group_egress_rule" "egress_any" {
