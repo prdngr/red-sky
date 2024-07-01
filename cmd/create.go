@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net"
 
@@ -27,11 +26,6 @@ var createCmd = &cobra.Command{
 func runCreate(cmd *cobra.Command, args []string) {
 	nodDir := core.GetNodDir()
 	deploymentId := uuid.New().String()
-	tf := core.GetTerraformInstance()
-
-	if err := tf.WorkspaceNew(context.Background(), deploymentId); err != nil {
-		log.Fatalf("error creating Terraform workspace: %s", err)
-	}
 
 	var variables = []tfexec.PlanOption{
 		tfexec.Var("aws_region=" + region),
@@ -43,15 +37,24 @@ func runCreate(cmd *cobra.Command, args []string) {
 		variables = append(variables, tfexec.Var("allowed_ip="+allowedIp.String()))
 	}
 
-	for _, variable := range variables {
-		fmt.Println(variable)
+	core.StartSpinner("Initializing Terraform")
+	tf := core.GetTerraformInstance()
+	core.StopSpinner("Terraform initialized")
+
+	if err := tf.WorkspaceNew(context.Background(), deploymentId); err != nil {
+		log.Fatalf("error creating Terraform workspace: %s", err)
 	}
+
+	core.StartSpinner("Planning deployment")
 
 	var _, err = tf.Plan(context.Background(), variables...)
 	if err != nil {
 		// TODO Make sure to cleanup the workspace.
 		log.Fatalf("error planning: %s", err)
 	}
+
+	core.StopSpinner("Deployment planned")
+
 	// tf.Apply(context.Background())
 }
 

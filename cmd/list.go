@@ -16,14 +16,16 @@ var listCmd = &cobra.Command{
 }
 
 func runList(cmd *cobra.Command, args []string) {
-	core.StartSpinner()
-
+	core.StartSpinner("Initializing Terraform")
 	tf := core.GetTerraformInstance()
+	core.StopSpinner("Terraform initialized")
+
+	core.StartSpinner("Retrieving deployments")
 
 	if workspaces, _, err := tf.WorkspaceList(context.Background()); err != nil {
 		log.Fatalf("error listing Terraform workspaces: %s", err)
 	} else {
-		core.StopSpinner()
+		core.StopSpinner("Deployments retrieved")
 
 		if len(workspaces) == 1 {
 			fmt.Println("No active deployments")

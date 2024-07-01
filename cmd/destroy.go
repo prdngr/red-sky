@@ -16,7 +16,9 @@ var destroyCmd = &cobra.Command{
 }
 
 func runDestroy(cmd *cobra.Command, args []string) {
+	core.StartSpinner("Initializing Terraform")
 	tf := core.GetTerraformInstance()
+	core.StopSpinner("Terraform initialized")
 
 	for _, deploymentId := range args {
 		if err := tf.WorkspaceSelect(context.Background(), deploymentId); err != nil {

@@ -28,7 +28,7 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(core.InitNodDir)
+	cobra.OnInitialize(core.PrintBanner, core.InitNodDir)
 
 	rootCmd.AddGroup(
 		&cobra.Group{ID: groupMain, Title: "Main Commands"},

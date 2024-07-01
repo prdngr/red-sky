@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"io/fs"
 	"log"
 	"os"
@@ -13,6 +14,14 @@ const (
 	NodDir          = "nod/"
 	initializedFile = NodDir + ".initialized"
 	filePermissions = 0660
+	nodBanner       = `
+    ███╗   ██╗ ██████╗ ██████╗
+    ████╗  ██║██╔═══██╗██╔══██╗
+    ██╔██╗ ██║██║   ██║██║  ██║
+    ██║╚██╗██║██║   ██║██║  ██║
+    ██║ ╚████║╚██████╔╝██████╔╝
+    ╚═╝  ╚═══╝ ╚═════╝ ╚═════╝
+	`
 )
 
 func GetNodDir() string {
@@ -50,4 +59,8 @@ func InitNodDir() {
 	}); err != nil {
 		log.Fatalf("error initializing NoD directory: %s", err)
 	}
+}
+
+func PrintBanner() {
+	fmt.Fprintln(os.Stderr, nodBanner)
 }
