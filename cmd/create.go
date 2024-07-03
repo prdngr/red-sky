@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 
@@ -12,9 +13,9 @@ import (
 )
 
 var (
-	region           string
-	allowedIp        net.IP
-	defaultAllowedIp = net.ParseIP("127.0.0.1")
+	region    string = "eu-central-1"
+	allowedIp net.IP = net.ParseIP("127.0.0.1")
+	autoIp    bool   = false
 )
 
 var createCmd = &cobra.Command{
@@ -35,6 +36,12 @@ func runCreate(cmd *cobra.Command, args []string) {
 
 	if allowedIp.To4() != nil && !allowedIp.IsLoopback() {
 		variables = append(variables, tfexec.Var("allowed_ip="+allowedIp.String()))
+	} else if autoIp {
+		if publicIp, err := core.GetPublicIp(); err != nil {
+			log.Fatalf("error determining allowed IP: %s", err)
+		} else {
+			variables = append(variables, tfexec.Var("allowed_ip="+publicIp.String()))
+		}
 	}
 
 	core.StartSpinner("Initializing Terraform")
@@ -45,12 +52,22 @@ func runCreate(cmd *cobra.Command, args []string) {
 		log.Fatalf("error creating Terraform workspace: %s", err)
 	}
 
+	for _, variable := range variables {
+		fmt.Println(variable)
+	}
+
+	return
+
 	core.StartSpinner("Planning deployment")
 
-	var _, err = tf.Plan(context.Background(), variables...)
-	if err != nil {
-		// TODO Make sure to cleanup the workspace.
-		log.Fatalf("error planning: %s", err)
+	if _, err := tf.Plan(context.Background(), variables...); err != nil {
+		core.StopSpinner("Could not plan deployment")
+
+		if err := tf.WorkspaceDelete(context.Background(), deploymentId); err != nil {
+			log.Fatalf("error deleting Terraform workspace: %s", err)
+		}
+
+		return
 	}
 
 	core.StopSpinner("Deployment planned")
@@ -61,6 +78,9 @@ func runCreate(cmd *cobra.Command, args []string) {
 func init() {
 	deploymentCmd.AddCommand(createCmd)
 
-	createCmd.Flags().StringVarP(&region, "region", "r", "eu-central-1", "AWS region to deploy in")
-	createCmd.Flags().IPVarP(&allowedIp, "allowed-ip", "a", defaultAllowedIp, `allow-listed IP address (supported "auto", <ipv4_address>)`)
+	createCmd.Flags().StringVarP(&region, "region", "r", region, "AWS region to deploy in")
+	createCmd.Flags().IPVar(&allowedIp, "allowed-ip", allowedIp, "allow-listed IP address")
+	createCmd.Flags().BoolVar(&autoIp, "auto-ip", autoIp, "automatically determine allow-listed IP")
+
+	createCmd.MarkFlagsMutuallyExclusive("allowed-ip", "auto-ip")
 }
