@@ -18,10 +18,18 @@ func StartSpinner(message string) {
 }
 
 func StopSpinner(message string) {
+	stopSpinner("✅", message)
+}
+
+func StopSpinnerError(message string) {
+	stopSpinner("🛑", message)
+}
+
+func stopSpinner(message string, prefix string) {
 	if spin == nil || !spin.Active() {
 		return
 	}
 
-	spin.FinalMSG = "✅ " + message + "\n"
+	spin.FinalMSG = prefix + " " + message + "\n"
 	spin.Stop()
 }

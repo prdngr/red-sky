@@ -18,7 +18,7 @@ func runList(cmd *cobra.Command, args []string) {
 	workspaces := tf.GetWorkspaces()
 
 	if len(workspaces) == 0 {
-		fmt.Println("No active deployments")
+		fmt.Println("No deployments found")
 	}
 
 	for _, workspace := range workspaces {

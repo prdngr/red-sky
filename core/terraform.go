@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net"
 
 	"github.com/adrg/xdg"
 	"github.com/google/uuid"
@@ -17,8 +18,8 @@ import (
 )
 
 const (
-	versionConstraint   = "~> 1.8"
 	defaultWorkspace    = "default"
+	terraformVersion    = "~> 1.8"
 	terraformWorkingDir = NodDir + "terraform/"
 	terraformInstallDir = NodDir + "bin/x"
 )
@@ -87,11 +88,21 @@ func (tf *Terraform) DeleteWorkspace(workspace string) {
 	}
 }
 
-func (tf *Terraform) ApplyDeployment(workspace string, options []tfexec.ApplyOption) {
+func (tf *Terraform) ApplyDeployment(workspace string, region string, allowedIp net.IP) {
 	StartSpinner("Deploying Nessus")
 
+	var options = []tfexec.ApplyOption{
+		createVar("aws_region", region),
+		createVar("key_directory", GetNodDir()),
+		createVar("deployment_name", workspace),
+	}
+
+	if allowedIp.To4() != nil && !allowedIp.IsLoopback() {
+		options = append(options, createVar("allowed_ip", allowedIp.String()))
+	}
+
 	if tf.instance.Apply(context.Background(), options...) != nil {
-		StopSpinner("Deployment failed")
+		StopSpinnerError("Deployment failed")
 		tf.DeleteWorkspace(workspace)
 		return
 	}
@@ -113,16 +124,19 @@ func (tf *Terraform) DestroyDeployment(workspace string) {
 	}
 
 	var options = []tfexec.DestroyOption{
-		tfexec.Var("aws_region="),
-		tfexec.Var("key_directory="),
-		tfexec.Var("deployment_name="),
-		tfexec.Refresh(false),
+		createVar("aws_region", ""),
+		createVar("key_directory", GetNodDir()),
+		createVar("deployment_name", workspace),
+		// tfexec.Refresh(false),
 	}
 
 	if err := tf.instance.Destroy(context.Background(), options...); err != nil {
 		log.Fatalf("error destroying Terraform deployment: %s", err)
 	}
+}
 
+func createVar(key string, value string) *tfexec.VarOption {
+	return tfexec.Var(key + "=" + value)
 }
 
 func getTerraformWorkingDir() string {
@@ -146,7 +160,7 @@ func getTerraformInstallDir() string {
 func getTerraformExecutable() string {
 	installer := install.NewInstaller()
 	installDirectory := getTerraformInstallDir()
-	versionConstraint := version.MustConstraints(version.NewConstraint(versionConstraint))
+	versionConstraint := version.MustConstraints(version.NewConstraint(terraformVersion))
 
 	executable, err := installer.Ensure(context.Background(), []src.Source{
 		&fs.Version{
