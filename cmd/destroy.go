@@ -1,13 +1,11 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
-	"log"
 
-	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/prodingerd/nessus-on-demand/core"
 	"github.com/spf13/cobra"
+	"golang.org/x/exp/slices"
 )
 
 var destroyCmd = &cobra.Command{
@@ -18,30 +16,17 @@ var destroyCmd = &cobra.Command{
 }
 
 func runDestroy(cmd *cobra.Command, args []string) {
-	core.StartSpinner("Initializing NoD")
-	tf := core.GetTerraformInstance()
-	core.StopSpinner("NoD initialized")
+	tf := (*core.Terraform).New(nil)
+	workspaces := tf.GetWorkspaces()
 
 	for _, deploymentId := range args {
-		if err := tf.WorkspaceSelect(context.Background(), deploymentId); err != nil {
-			fmt.Println("Deployment '" + deploymentId + "' could not be found, skipping")
+		if !slices.Contains(workspaces, deploymentId) {
+			fmt.Println("Could not find deployment '" + deploymentId + "', skipping")
 			continue
 		}
 
-		var options = []tfexec.DestroyOption{
-			tfexec.Var("aws_region=" + ""),
-			tfexec.Var("key_directory=" + ""),
-			tfexec.Var("deployment_name=" + ""),
-			tfexec.Refresh(false),
-		}
-
-		if err := tf.Destroy(context.Background(), options...); err != nil {
-			log.Fatalf("error destroying Terraform deployment: %s", err)
-		}
-
-		if err := tf.WorkspaceDelete(context.Background(), deploymentId); err != nil {
-			log.Fatalf("error deleting Terraform workspace: %s", err)
-		}
+		tf.DestroyDeployment(deploymentId)
+		tf.DeleteWorkspace(deploymentId)
 	}
 }
 

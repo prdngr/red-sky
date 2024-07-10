@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
-	"log"
 
 	"github.com/prodingerd/nessus-on-demand/core"
 	"github.com/spf13/cobra"
@@ -16,28 +14,15 @@ var listCmd = &cobra.Command{
 }
 
 func runList(cmd *cobra.Command, args []string) {
-	core.StartSpinner("Initializing NoD")
-	tf := core.GetTerraformInstance()
-	core.StopSpinner("NoD initialized")
+	tf := (*core.Terraform).New(nil)
+	workspaces := tf.GetWorkspaces()
 
-	core.StartSpinner("Retrieving deployments")
+	if len(workspaces) == 0 {
+		fmt.Println("No active deployments")
+	}
 
-	if workspaces, _, err := tf.WorkspaceList(context.Background()); err != nil {
-		log.Fatalf("error listing Terraform workspaces: %s", err)
-	} else {
-		core.StopSpinner("Deployments retrieved")
-
-		if len(workspaces) == 1 {
-			fmt.Println("No active deployments")
-		}
-
-		for _, workspace := range workspaces {
-			if workspace == "default" {
-				continue
-			}
-
-			fmt.Println(workspace)
-		}
+	for _, workspace := range workspaces {
+		fmt.Println(workspace)
 	}
 }
 

@@ -1,12 +1,9 @@
 package cmd
 
 import (
-	"context"
-	"fmt"
 	"log"
 	"net"
 
-	"github.com/google/uuid"
 	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/prodingerd/nessus-on-demand/core"
 	"github.com/spf13/cobra"
@@ -26,12 +23,10 @@ var createCmd = &cobra.Command{
 
 func runCreate(cmd *cobra.Command, args []string) {
 	nodDir := core.GetNodDir()
-	deploymentId := uuid.New().String()
 
 	var options = []tfexec.ApplyOption{
 		tfexec.Var("aws_region=" + region),
 		tfexec.Var("key_directory=" + nodDir),
-		tfexec.Var("deployment_name=" + deploymentId),
 	}
 
 	if allowedIp.To4() != nil && !allowedIp.IsLoopback() {
@@ -44,50 +39,10 @@ func runCreate(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	core.StartSpinner("Initializing NoD")
-	tf := core.GetTerraformInstance()
-	core.StopSpinner("NoD initialized")
+	tf := (*core.Terraform).New(nil)
+	workspace := tf.CreateWorkspace()
 
-	if err := tf.WorkspaceNew(context.Background(), deploymentId); err != nil {
-		log.Fatalf("error creating Terraform workspace: %s", err)
-	}
-
-	// TODO Remove debug output.
-	for _, variable := range options {
-		fmt.Println(variable)
-	}
-
-	core.StartSpinner("Deploying Nessus")
-
-	// if _, err := tf.Plan(context.Background(), options...); err != nil {
-	// 	core.StopSpinner("Could not plan deployment")
-
-	// 	if err := tf.WorkspaceDelete(context.Background(), deploymentId); err != nil {
-	// 		log.Fatalf("error deleting Terraform workspace: %s", err)
-	// 	}
-
-	// 	return
-	// }
-
-	if tf.Apply(context.Background(), options...) != nil {
-		core.StopSpinner("Deployment failed")
-
-		if err := tf.WorkspaceDelete(context.Background(), deploymentId); err != nil {
-			log.Fatalf("error deleting Terraform workspace: %s", err)
-		}
-
-		return
-	}
-
-	core.StopSpinner("Nessus deployed")
-
-	if outputs, err := tf.Output(context.Background()); err != nil {
-		log.Fatalf("error retrieving Terraform output: %s", err)
-	} else {
-		for _, output := range outputs {
-			fmt.Println(output.Value)
-		}
-	}
+	tf.ApplyDeployment(workspace, append(options, tfexec.Var("deployment_name="+workspace)))
 }
 
 func init() {
