@@ -16,9 +16,9 @@ var listCmd = &cobra.Command{
 }
 
 func runList(cmd *cobra.Command, args []string) {
-	core.StartSpinner("Initializing Terraform")
+	core.StartSpinner("Initializing NoD")
 	tf := core.GetTerraformInstance()
-	core.StopSpinner("Terraform initialized")
+	core.StopSpinner("NoD initialized")
 
 	core.StartSpinner("Retrieving deployments")
 

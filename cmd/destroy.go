@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"log"
 
+	"github.com/hashicorp/terraform-exec/tfexec"
 	"github.com/prodingerd/nessus-on-demand/core"
 	"github.com/spf13/cobra"
 )
@@ -16,17 +18,24 @@ var destroyCmd = &cobra.Command{
 }
 
 func runDestroy(cmd *cobra.Command, args []string) {
-	core.StartSpinner("Initializing Terraform")
+	core.StartSpinner("Initializing NoD")
 	tf := core.GetTerraformInstance()
-	core.StopSpinner("Terraform initialized")
+	core.StopSpinner("NoD initialized")
 
 	for _, deploymentId := range args {
 		if err := tf.WorkspaceSelect(context.Background(), deploymentId); err != nil {
-			// TODO This should not error but maybe raise a warning.
-			log.Fatalf("error selecting Terraform workspace: %s", err)
+			fmt.Println("Deployment '" + deploymentId + "' could not be found, skipping")
+			continue
 		}
 
-		if err := tf.Destroy(context.Background()); err != nil {
+		var options = []tfexec.DestroyOption{
+			tfexec.Var("aws_region=" + ""),
+			tfexec.Var("key_directory=" + ""),
+			tfexec.Var("deployment_name=" + ""),
+			tfexec.Refresh(false),
+		}
+
+		if err := tf.Destroy(context.Background(), options...); err != nil {
 			log.Fatalf("error destroying Terraform deployment: %s", err)
 		}
 

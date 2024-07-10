@@ -28,40 +28,49 @@ func runCreate(cmd *cobra.Command, args []string) {
 	nodDir := core.GetNodDir()
 	deploymentId := uuid.New().String()
 
-	var variables = []tfexec.PlanOption{
+	var options = []tfexec.ApplyOption{
 		tfexec.Var("aws_region=" + region),
 		tfexec.Var("key_directory=" + nodDir),
 		tfexec.Var("deployment_name=" + deploymentId),
 	}
 
 	if allowedIp.To4() != nil && !allowedIp.IsLoopback() {
-		variables = append(variables, tfexec.Var("allowed_ip="+allowedIp.String()))
+		options = append(options, tfexec.Var("allowed_ip="+allowedIp.String()))
 	} else if autoIp {
 		if publicIp, err := core.GetPublicIp(); err != nil {
 			log.Fatalf("error determining allowed IP: %s", err)
 		} else {
-			variables = append(variables, tfexec.Var("allowed_ip="+publicIp.String()))
+			options = append(options, tfexec.Var("allowed_ip="+publicIp.String()))
 		}
 	}
 
-	core.StartSpinner("Initializing Terraform")
+	core.StartSpinner("Initializing NoD")
 	tf := core.GetTerraformInstance()
-	core.StopSpinner("Terraform initialized")
+	core.StopSpinner("NoD initialized")
 
 	if err := tf.WorkspaceNew(context.Background(), deploymentId); err != nil {
 		log.Fatalf("error creating Terraform workspace: %s", err)
 	}
 
-	for _, variable := range variables {
+	// TODO Remove debug output.
+	for _, variable := range options {
 		fmt.Println(variable)
 	}
 
-	return
+	core.StartSpinner("Deploying Nessus")
 
-	core.StartSpinner("Planning deployment")
+	// if _, err := tf.Plan(context.Background(), options...); err != nil {
+	// 	core.StopSpinner("Could not plan deployment")
 
-	if _, err := tf.Plan(context.Background(), variables...); err != nil {
-		core.StopSpinner("Could not plan deployment")
+	// 	if err := tf.WorkspaceDelete(context.Background(), deploymentId); err != nil {
+	// 		log.Fatalf("error deleting Terraform workspace: %s", err)
+	// 	}
+
+	// 	return
+	// }
+
+	if tf.Apply(context.Background(), options...) != nil {
+		core.StopSpinner("Deployment failed")
 
 		if err := tf.WorkspaceDelete(context.Background(), deploymentId); err != nil {
 			log.Fatalf("error deleting Terraform workspace: %s", err)
@@ -70,9 +79,15 @@ func runCreate(cmd *cobra.Command, args []string) {
 		return
 	}
 
-	core.StopSpinner("Deployment planned")
+	core.StopSpinner("Nessus deployed")
 
-	// tf.Apply(context.Background())
+	if outputs, err := tf.Output(context.Background()); err != nil {
+		log.Fatalf("error retrieving Terraform output: %s", err)
+	} else {
+		for _, output := range outputs {
+			fmt.Println(output.Value)
+		}
+	}
 }
 
 func init() {
