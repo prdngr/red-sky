@@ -1,6 +1,6 @@
 package main
 
-import "github.com/prodingerd/nessus-on-demand/cmd"
+import "github.com/prdngr/nessus-on-demand/cmd"
 
 func main() {
 	cmd.Execute()

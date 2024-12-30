@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/adrg/xdg"
-	"github.com/prodingerd/nessus-on-demand/static"
+	"github.com/prdngr/nessus-on-demand/static"
 )
 
 const (

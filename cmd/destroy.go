@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/prodingerd/nessus-on-demand/core"
+	"github.com/prdngr/nessus-on-demand/core"
 	"github.com/spf13/cobra"
 	"golang.org/x/exp/slices"
 )

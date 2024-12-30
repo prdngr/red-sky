@@ -9,7 +9,6 @@ require (
 	github.com/hashicorp/go-version v1.7.0
 	github.com/hashicorp/hc-install v0.9.0
 	github.com/hashicorp/terraform-exec v0.21.0
-	github.com/prodingerd/nessus-on-demand v0.0.0-20241218210332-c77a5def77fa
 	github.com/spf13/cobra v1.8.1
 )
 

@@ -3,7 +3,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/prodingerd/nessus-on-demand/core"
+	"github.com/prdngr/nessus-on-demand/core"
 	"github.com/spf13/cobra"
 )
 
