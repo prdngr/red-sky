@@ -33,6 +33,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 	workspace := tf.CreateWorkspace()
 
 	tf.ApplyDeployment(workspace, region, allowedIp)
+	tf.GetOutput()
 }
 
 func init() {

@@ -107,14 +107,6 @@ func (tf *Terraform) ApplyDeployment(workspace string, region string, allowedIp 
 		return
 	}
 
-	if outputs, err := tf.instance.Output(context.Background()); err != nil {
-		log.Fatalf("error retrieving Terraform output: %s", err)
-	} else {
-		for _, output := range outputs {
-			fmt.Println(output.Value)
-		}
-	}
-
 	StopSpinner("Nessus deployed")
 }
 
@@ -127,11 +119,20 @@ func (tf *Terraform) DestroyDeployment(workspace string) {
 		createVar("aws_region", ""),
 		createVar("key_directory", GetNodDir()),
 		createVar("deployment_name", workspace),
-		// tfexec.Refresh(false),
 	}
 
 	if err := tf.instance.Destroy(context.Background(), options...); err != nil {
 		log.Fatalf("error destroying Terraform deployment: %s", err)
+	}
+}
+
+func (tf *Terraform) GetOutput() {
+	if outputs, err := tf.instance.Output(context.Background()); err != nil {
+		log.Fatalf("error retrieving Terraform output: %s", err)
+	} else {
+		for name, output := range outputs {
+			fmt.Println(name + " - " + string(output.Value))
+		}
 	}
 }
 

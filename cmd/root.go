@@ -17,8 +17,8 @@ var rootCmd = &cobra.Command{
 	Version: version,
 	Use:     "nessus-on-demand",
 	Short:   "Manage just-in-time Nessus deployments in the cloud",
-	Long: `Nessus on Demand (NoD) is a powerful CLI utility for managing Nessus instances in AWS.
-Built using Terraform, NoD bootstraps scanning infrastructure with surgical precision.`,
+	Long: `Nessus on Demand (NoD) is a handy CLI utility for managing Nessus instances in AWS.
+Built using Terraform, NoD safely bootstraps scanning instances on a per-need basis.`,
 }
 
 func Execute() {
