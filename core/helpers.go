@@ -5,8 +5,10 @@ import (
 	"io/fs"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/adrg/xdg"
+	"github.com/fatih/color"
 	"github.com/prdngr/nessus-on-demand/static"
 )
 
@@ -63,4 +65,9 @@ func InitNodDir() {
 
 func PrintBanner() {
 	fmt.Fprintln(os.Stderr, nodBanner)
+}
+
+func PrintHeader(header string) {
+	color.Yellow("\n" + header)
+	color.Yellow(strings.Repeat("-", len(header)) + "\n\n")
 }

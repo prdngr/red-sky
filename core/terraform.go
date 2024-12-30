@@ -2,9 +2,9 @@ package core
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net"
+	"strings"
 
 	"github.com/adrg/xdg"
 	"github.com/google/uuid"
@@ -26,6 +26,13 @@ const (
 
 type Terraform struct {
 	instance *tfexec.Terraform
+}
+
+type TerraformOutput struct {
+	DeploymentId string
+	InstanceId   string
+	InstanceIp   string
+	SshKeyFile   string
 }
 
 func (*Terraform) New() *Terraform {
@@ -94,7 +101,7 @@ func (tf *Terraform) ApplyDeployment(workspace string, region string, allowedIp 
 	var options = []tfexec.ApplyOption{
 		createVar("aws_region", region),
 		createVar("key_directory", GetNodDir()),
-		createVar("deployment_name", workspace),
+		createVar("deployment_id", workspace),
 	}
 
 	if allowedIp.To4() != nil && !allowedIp.IsLoopback() {
@@ -104,13 +111,15 @@ func (tf *Terraform) ApplyDeployment(workspace string, region string, allowedIp 
 	if tf.instance.Apply(context.Background(), options...) != nil {
 		StopSpinnerError("Deployment failed")
 		tf.DeleteWorkspace(workspace)
-		return
+		return // TODO Handle error.
 	}
 
 	StopSpinner("Nessus deployed")
 }
 
 func (tf *Terraform) DestroyDeployment(workspace string) {
+	StartSpinner("Destroying deployment")
+
 	if err := tf.instance.WorkspaceSelect(context.Background(), workspace); err != nil {
 		log.Fatalf("error selecting Terraform workspace: %s", err)
 	}
@@ -118,21 +127,31 @@ func (tf *Terraform) DestroyDeployment(workspace string) {
 	var options = []tfexec.DestroyOption{
 		createVar("aws_region", ""),
 		createVar("key_directory", GetNodDir()),
-		createVar("deployment_name", workspace),
+		createVar("deployment_id", workspace),
 	}
 
 	if err := tf.instance.Destroy(context.Background(), options...); err != nil {
 		log.Fatalf("error destroying Terraform deployment: %s", err)
 	}
+
+	StopSpinner("Deployment destroyed")
 }
 
-func (tf *Terraform) GetOutput() {
-	if outputs, err := tf.instance.Output(context.Background()); err != nil {
+func (tf *Terraform) GetDeploymentDetails() *TerraformOutput {
+	StartSpinner("Gathering deployment details")
+
+	outputs, err := tf.instance.Output(context.Background())
+	if err != nil {
 		log.Fatalf("error retrieving Terraform output: %s", err)
-	} else {
-		for name, output := range outputs {
-			fmt.Println(name + " - " + string(output.Value))
-		}
+	}
+
+	StopSpinner("Deployment details gathered")
+
+	return &TerraformOutput{
+		DeploymentId: strings.Trim(string(outputs["deployment_id"].Value), "\""),
+		InstanceId:   strings.Trim(string(outputs["instance_id"].Value), "\""),
+		InstanceIp:   strings.Trim(string(outputs["instance_ip"].Value), "\""),
+		SshKeyFile:   strings.Trim(string(outputs["ssh_key_file"].Value), "\""),
 	}
 }
 

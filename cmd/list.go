@@ -17,6 +17,8 @@ func runList(cmd *cobra.Command, args []string) {
 	tf := (*core.Terraform).New(nil)
 	workspaces := tf.GetWorkspaces()
 
+	core.PrintHeader("Deployments")
+
 	if len(workspaces) == 0 {
 		fmt.Println("No deployments found")
 	}
