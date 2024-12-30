@@ -8,7 +8,7 @@ provider "aws" {
   default_tags {
     tags = {
       Workload   = "Nessus on Demand"
-      Deployment = var.deployment_name
+      Deployment = var.deployment_id
       ManagedBy  = "Terraform"
     }
   }
@@ -38,7 +38,7 @@ resource "aws_key_pair" "this" {
 }
 
 resource "local_sensitive_file" "this" {
-  filename        = pathexpand("${var.key_directory}/${var.deployment_name}.pem")
+  filename        = pathexpand("${var.key_directory}/${var.deployment_id}.pem")
   content         = tls_private_key.this.private_key_openssh
   file_permission = "400"
 }

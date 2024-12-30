@@ -3,7 +3,7 @@ variable "aws_region" {
   description = "The AWS region to deploy in"
 }
 
-variable "deployment_name" {
+variable "deployment_id" {
   type        = string
   description = "A unique identifier of the deployment"
 }
