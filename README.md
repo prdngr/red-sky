@@ -17,7 +17,7 @@
 
 ## About The Project
 
-Nessus on Demand (NoD) is a handy CLI utility for managing Nessus instances in AWS. Built using Terraform, NoD safely bootstraps scanning instances on a per-need basis.
+Nessus on Demand (NoD) is a handy CLI utility for managing Nessus instances in AWS. Built using Terraform, NoD safely bootstraps scanning infrastructure on a per-need basis.
 
 ## Installation and Usage
 
@@ -28,6 +28,9 @@ $ go install github.com/prdngr/nessus-on-demand@latest
 ```
 
 Once installed, the easiest way of spinning up an instance using NoD looks as follows:
+
+> [!IMPORTANT]  
+> The command shown below will use your AWS CLI default profile. If you want to use another profile instead, set the [`AWS_PROFILE`](https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-files.html#cli-configure-files-using-profiles) environment variable accordingly.
 
 ```bash
 $ nessus-on-demand deployment create --auto-ip --region eu-central-1
