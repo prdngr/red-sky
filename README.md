@@ -1,7 +1,7 @@
 <p align="center">
     <h3 align="center">Nessus on Demand</h3>
     <p align="center">
-        A just-in-time Nessus solution for agile penetration testing teams.
+        A just-in-time Nessus solution for modern penetration testing teams.
     </p>
 </p>
 
@@ -29,8 +29,8 @@ $ go install github.com/prdngr/nessus-on-demand@latest
 
 Once installed, the easiest way of spinning up an instance using NoD looks as follows:
 
-> [!IMPORTANT]  
-> The command shown below will use your AWS CLI default profile. If you want to use another profile instead, set the [`AWS_PROFILE`](https://docs.aws.amazon.com/cli/v1/userguide/cli-configure-files.html#cli-configure-files-using-profiles) environment variable accordingly.
+> [!IMPORTANT]
+> The command shown below will use your AWS CLI default profile. If you want to use another profile instead, set the [`AWS_PROFILE`](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html#cli-configure-files-using-profiles) environment variable accordingly.
 
 ```bash
 $ nessus-on-demand deployment create --auto-ip --region eu-central-1
