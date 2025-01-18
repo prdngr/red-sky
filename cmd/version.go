@@ -13,7 +13,7 @@ var versionCmd = &cobra.Command{
 	GroupID: groupUtility,
 	Run: func(cmd *cobra.Command, args []string) {
 		versionInformation := internal.GetVersion()
-		fmt.Printf("Nessus on Demand v%s (%s)\n", versionInformation.BuildVersion, versionInformation.BuildCommit)
+		fmt.Printf("Nessus on Demand %s (%s)\n", versionInformation.BuildVersion, versionInformation.BuildCommit)
 		fmt.Printf("Platform: %s\n", versionInformation.Platform)
 	},
 }
