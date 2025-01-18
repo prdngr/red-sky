@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net"
+	"os"
 	"strings"
 
 	"github.com/adrg/xdg"
@@ -19,9 +20,8 @@ import (
 
 const (
 	defaultWorkspace    = "default"
-	terraformVersion    = "~> 1.8"
+	terraformVersion    = "~> 1.10"
 	terraformWorkingDir = NodDir + "terraform/"
-	terraformInstallDir = NodDir + "bin/x"
 )
 
 type Terraform struct {
@@ -169,12 +169,13 @@ func getTerraformWorkingDir() string {
 }
 
 func getTerraformInstallDir() string {
-	installDir, err := xdg.CacheFile(terraformInstallDir)
-	if err != nil {
+	terraformInstallDir := xdg.BinHome
+
+	if err := os.MkdirAll(terraformInstallDir, filePermissions); err != nil {
 		log.Fatalf("error creating Terraform install directory: %s", err)
 	}
 
-	return installDir
+	return terraformInstallDir
 }
 
 func getTerraformExecutable() string {

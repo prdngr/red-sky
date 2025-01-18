@@ -15,7 +15,7 @@ import (
 const (
 	NodDir          = "nod/"
 	initializedFile = NodDir + ".initialized"
-	filePermissions = 0660
+	filePermissions = 0700
 	nodBanner       = `
     ███╗   ██╗ ██████╗ ██████╗
     ████╗  ██║██╔═══██╗██╔══██╗
