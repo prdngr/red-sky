@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/prdngr/nessus-on-demand/internal"
 	"github.com/spf13/cobra"
 )
 
@@ -11,7 +12,9 @@ var versionCmd = &cobra.Command{
 	Short:   "Nessus on Demand version",
 	GroupID: groupUtility,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("nessus-on-demand version " + version)
+		versionInformation := internal.GetVersion()
+		fmt.Printf("Nessus on Demand v%s (%s)\n", versionInformation.BuildVersion, versionInformation.BuildCommit)
+		fmt.Printf("Platform: %s\n", versionInformation.Platform)
 	},
 }
 

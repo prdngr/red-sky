@@ -8,15 +8,13 @@ import (
 )
 
 const (
-	version      = "0.1.0"
 	groupMain    = "main"
 	groupUtility = "utility"
 )
 
 var rootCmd = &cobra.Command{
-	Version: version,
-	Use:     "nessus-on-demand",
-	Short:   "Manage just-in-time Nessus deployments in the cloud",
+	Use:   "nessus-on-demand",
+	Short: "Manage just-in-time Nessus deployments in the cloud",
 	Long: `Nessus on Demand (NoD) is a handy CLI utility for managing Nessus instances in AWS.
 Built using Terraform, NoD safely bootstraps scanning infrastructure on a per-need basis.`,
 }

@@ -1,0 +1,26 @@
+name: Release Nessus on Demand
+
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release-matrix:
+    name: Release Matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, darwin]
+        goarch: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: wangyoucao577/go-release-action@v1.53
+        with:
+          ldflags: -X github.com/prdngr/nessus-on-demand/internal.buildCommit=${{ github.sha }} -X github.com/prdngr/nessus-on-demand/internal.buildVersion=${{ github.event.release.tag_name }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
