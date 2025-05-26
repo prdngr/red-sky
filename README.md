@@ -50,8 +50,8 @@ Deployment Summary
 ------------------
 
 Deployment ID: 90d6c9be-edf0-4ee9-ac0b-c7ed701c6f70
-Nessus Interface URL: https://3.176.102.79:8834
-Allowed IP for Nessus Interface: 118.146.33.52
+Nessus Interface: https://3.176.102.79:8834
+Allowed IP Address: 118.146.33.52
 
 Next Steps
 ----------

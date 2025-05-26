@@ -37,7 +37,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 	tf := (*core.Terraform).New(nil)
 	workspace := tf.CreateWorkspace()
 
-	tf.ApplyDeployment(workspace, region, allowedIp)
+	tf.ApplyDeployment(workspace, region, profile, allowedIp)
 	details := tf.GetDeploymentDetails()
 
 	core.PrintHeader("Deployment Summary")

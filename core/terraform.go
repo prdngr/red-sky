@@ -95,11 +95,12 @@ func (tf *Terraform) DeleteWorkspace(workspace string) {
 	}
 }
 
-func (tf *Terraform) ApplyDeployment(workspace string, region string, allowedIp net.IP) {
+func (tf *Terraform) ApplyDeployment(workspace string, region string, profile string, allowedIp net.IP) {
 	StartSpinner("Deploying Nessus")
 
 	var options = []tfexec.ApplyOption{
 		createVar("aws_region", region),
+		createVar("aws_profile", profile),
 		createVar("key_directory", GetNodDir()),
 		createVar("deployment_id", workspace),
 	}
@@ -117,7 +118,7 @@ func (tf *Terraform) ApplyDeployment(workspace string, region string, allowedIp 
 	StopSpinner("Nessus deployed")
 }
 
-func (tf *Terraform) DestroyDeployment(workspace string) {
+func (tf *Terraform) DestroyDeployment(workspace string, region string, profile string) {
 	StartSpinner("Destroying deployment")
 
 	if err := tf.instance.WorkspaceSelect(context.Background(), workspace); err != nil {
@@ -125,7 +126,8 @@ func (tf *Terraform) DestroyDeployment(workspace string) {
 	}
 
 	var options = []tfexec.DestroyOption{
-		createVar("aws_region", ""),
+		createVar("aws_region", region),
+		createVar("aws_profile", profile),
 		createVar("key_directory", GetNodDir()),
 		createVar("deployment_id", workspace),
 	}

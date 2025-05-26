@@ -25,11 +25,14 @@ func runDestroy(cmd *cobra.Command, args []string) {
 			continue
 		}
 
-		tf.DestroyDeployment(deploymentId)
+		tf.DestroyDeployment(deploymentId, region, profile)
 		tf.DeleteWorkspace(deploymentId)
 	}
 }
 
 func init() {
 	deploymentCmd.AddCommand(destroyCmd)
+
+	destroyCmd.Flags().StringVarP(&region, "region", "r", region, "AWS region")
+	destroyCmd.Flags().StringVarP(&profile, "profile", "p", profile, "AWS profile")
 }
