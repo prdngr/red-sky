@@ -7,11 +7,11 @@ require (
 	github.com/aws/aws-sdk-go v1.55.7
 	github.com/briandowns/spinner v1.23.2
 	github.com/fatih/color v1.18.0
-	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-version v1.7.0
 	github.com/hashicorp/hc-install v0.9.2
 	github.com/hashicorp/terraform-exec v0.23.0
 	github.com/spf13/cobra v1.9.1
+	github.com/sqids/sqids-go v0.4.1
 )
 
 require (

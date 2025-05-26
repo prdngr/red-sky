@@ -47,4 +47,5 @@ func InitializeAwsSession(profile string) {
 
 	fmt.Print("\nPress Enter to continue...")
 	bufio.NewReader(os.Stdin).ReadString('\n')
+	fmt.Println()
 }

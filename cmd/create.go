@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	region    = "eu-central-1"
 	profile   = "default"
+	region    = "eu-central-1"
 	allowedIp = net.ParseIP("127.0.0.1")
 	autoIp    = false
 )
@@ -35,9 +35,9 @@ func runCreate(cmd *cobra.Command, args []string) {
 	}
 
 	tf := (*core.Terraform).New(nil)
-	workspace := tf.CreateWorkspace()
+	workspace := tf.CreateWorkspace(profile, region)
 
-	tf.ApplyDeployment(workspace, region, profile, allowedIp)
+	tf.ApplyDeployment(workspace, allowedIp)
 	details := tf.GetDeploymentDetails()
 
 	core.PrintHeader("Deployment Summary")
@@ -59,8 +59,8 @@ func runCreate(cmd *cobra.Command, args []string) {
 func init() {
 	deploymentCmd.AddCommand(createCmd)
 
-	createCmd.Flags().StringVarP(&region, "region", "r", region, "AWS region")
 	createCmd.Flags().StringVarP(&profile, "profile", "p", profile, "AWS profile")
+	createCmd.Flags().StringVarP(&region, "region", "r", region, "AWS region")
 	createCmd.Flags().IPVar(&allowedIp, "allowed-ip", allowedIp, "allow-listed IP address")
 	createCmd.Flags().BoolVar(&autoIp, "auto-ip", autoIp, "automatically determine allow-listed IP")
 

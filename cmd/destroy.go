@@ -21,18 +21,15 @@ func runDestroy(cmd *cobra.Command, args []string) {
 
 	for _, deploymentId := range args {
 		if !slices.Contains(workspaces, deploymentId) {
-			fmt.Println("Could not find deployment '" + deploymentId + "', skipping")
+			fmt.Printf("Could not find deployment '%s', skipping\n", deploymentId)
 			continue
 		}
 
-		tf.DestroyDeployment(deploymentId, region, profile)
+		tf.DestroyDeployment(deploymentId)
 		tf.DeleteWorkspace(deploymentId)
 	}
 }
 
 func init() {
 	deploymentCmd.AddCommand(destroyCmd)
-
-	destroyCmd.Flags().StringVarP(&region, "region", "r", region, "AWS region")
-	destroyCmd.Flags().StringVarP(&profile, "profile", "p", profile, "AWS profile")
 }

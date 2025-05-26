@@ -2,13 +2,14 @@ package core
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/adrg/xdg"
-	"github.com/google/uuid"
 	"github.com/hashicorp/go-version"
 	install "github.com/hashicorp/hc-install"
 	"github.com/hashicorp/hc-install/fs"
@@ -16,6 +17,7 @@ import (
 	"github.com/hashicorp/hc-install/releases"
 	"github.com/hashicorp/hc-install/src"
 	"github.com/hashicorp/terraform-exec/tfexec"
+	"github.com/sqids/sqids-go"
 )
 
 const (
@@ -33,6 +35,12 @@ type TerraformOutput struct {
 	InstanceId   string
 	InstanceIp   string
 	SshKeyFile   string
+}
+
+type WorkspaceInfo struct {
+	Profile string
+	Region  string
+	Random  string
 }
 
 func (*Terraform) New() *Terraform {
@@ -75,8 +83,8 @@ func (tf *Terraform) GetWorkspaces() []string {
 	return nonDefaultWorkspaces
 }
 
-func (tf *Terraform) CreateWorkspace() string {
-	workspace := uuid.New().String()
+func (tf *Terraform) CreateWorkspace(profile string, region string) string {
+	workspace := generateWorkspaceName(profile, region)
 
 	if err := tf.instance.WorkspaceNew(context.Background(), workspace); err != nil {
 		log.Fatalf("error creating Terraform workspace: %s", err)
@@ -95,12 +103,14 @@ func (tf *Terraform) DeleteWorkspace(workspace string) {
 	}
 }
 
-func (tf *Terraform) ApplyDeployment(workspace string, region string, profile string, allowedIp net.IP) {
+func (tf *Terraform) ApplyDeployment(workspace string, allowedIp net.IP) {
 	StartSpinner("Deploying Nessus")
 
+	workspaceInfo := parseWorkspaceName(workspace)
+
 	var options = []tfexec.ApplyOption{
-		createVar("aws_region", region),
-		createVar("aws_profile", profile),
+		createVar("aws_profile", workspaceInfo.Profile),
+		createVar("aws_region", workspaceInfo.Region),
 		createVar("key_directory", GetNodDir()),
 		createVar("deployment_id", workspace),
 	}
@@ -118,16 +128,18 @@ func (tf *Terraform) ApplyDeployment(workspace string, region string, profile st
 	StopSpinner("Nessus deployed")
 }
 
-func (tf *Terraform) DestroyDeployment(workspace string, region string, profile string) {
+func (tf *Terraform) DestroyDeployment(workspace string) {
 	StartSpinner("Destroying deployment")
 
 	if err := tf.instance.WorkspaceSelect(context.Background(), workspace); err != nil {
 		log.Fatalf("error selecting Terraform workspace: %s", err)
 	}
 
+	workspaceInfo := parseWorkspaceName(workspace)
+
 	var options = []tfexec.DestroyOption{
-		createVar("aws_region", region),
-		createVar("aws_profile", profile),
+		createVar("aws_profile", workspaceInfo.Profile),
+		createVar("aws_region", workspaceInfo.Region),
 		createVar("key_directory", GetNodDir()),
 		createVar("deployment_id", workspace),
 	}
@@ -154,6 +166,25 @@ func (tf *Terraform) GetDeploymentDetails() *TerraformOutput {
 		InstanceId:   strings.Trim(string(outputs["instance_id"].Value), "\""),
 		InstanceIp:   strings.Trim(string(outputs["instance_ip"].Value), "\""),
 		SshKeyFile:   strings.Trim(string(outputs["ssh_key_file"].Value), "\""),
+	}
+}
+
+func generateWorkspaceName(profile string, region string) string {
+	squid, _ := sqids.New()
+	id, _ := squid.Encode([]uint64{uint64(time.Now().UnixNano())})
+	return fmt.Sprintf("%s=%s=%s", profile, region, id)
+}
+
+func parseWorkspaceName(workspace string) *WorkspaceInfo {
+	parts := strings.Split(workspace, "=")
+	if len(parts) != 3 {
+		log.Fatalf("error parsing workspace name: %s", workspace)
+	}
+
+	return &WorkspaceInfo{
+		Profile: parts[0],
+		Region:  parts[1],
+		Random:  parts[2],
 	}
 }
 
