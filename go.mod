@@ -12,9 +12,12 @@ require (
 	github.com/spf13/cobra v1.8.1
 )
 
+require github.com/jmespath/go-jmespath v0.4.0 // indirect
+
 require (
 	github.com/ProtonMail/go-crypto v1.1.5 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
+	github.com/aws/aws-sdk-go v1.55.7
 	github.com/cloudflare/circl v1.5.0 // indirect
 	github.com/fatih/color v1.18.0
 	github.com/hashicorp/errwrap v1.1.0 // indirect

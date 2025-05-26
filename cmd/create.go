@@ -24,6 +24,8 @@ var createCmd = &cobra.Command{
 }
 
 func runCreate(cmd *cobra.Command, args []string) {
+	core.InitializeAwsSession(profile)
+
 	if autoIp {
 		if publicIp, err := core.GetPublicIp(); err != nil {
 			log.Fatalf("error determining public IP address: %s", err)
