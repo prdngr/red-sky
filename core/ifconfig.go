@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	serviceUrl = "https://ifconfig.me"
+	serviceUrl = "https://ifconfig.me/ip"
 )
 
 func GetPublicIp() (net.IP, error) {
