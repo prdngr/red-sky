@@ -12,6 +12,7 @@ import (
 
 var (
 	region    = "eu-central-1"
+	profile   = "default"
 	allowedIp = net.ParseIP("127.0.0.1")
 	autoIp    = false
 )
@@ -40,23 +41,24 @@ func runCreate(cmd *cobra.Command, args []string) {
 	core.PrintHeader("Deployment Summary")
 
 	fmt.Printf("Deployment ID: %s\n", details.DeploymentId)
-	fmt.Printf("Nessus Interface URL: %s\n", "https://"+details.InstanceIp+":8834")
-	fmt.Printf("Allowed IP for Nessus Interface: %s\n", allowedIp)
+	fmt.Printf("Nessus Interface: %s\n", "https://"+details.InstanceIp+":8834")
+	fmt.Printf("Allowed IP Address: %s\n", allowedIp)
 
 	core.PrintHeader("Next Steps")
 
 	if allowedIp.IsLoopback() {
-		fmt.Print("▶ Forward the Nessus web interface port to your machine using the command below. Then access it via https://localhost:8834.\n")
-		color.Cyan("  $ ssh -N -L 8834:127.0.0.1:8834 -i '" + details.SshKeyFile + "' ec2-user@" + details.InstanceIp)
+		fmt.Println("▶ Forward the Nessus web interface port to your machine using the command below. Then access it via https://localhost:8834.")
+		color.Cyan("  $ ssh -N -L 8834:127.0.0.1:8834 -i '%s' ec2-user@%s", details.SshKeyFile, details.InstanceIp)
 	}
 
-	fmt.Print("▶ Open the Nessus interface in your browser, sign up, and activate your license.\n")
+	fmt.Println("▶ Open the Nessus interface in your browser, sign up, and activate your license.")
 }
 
 func init() {
 	deploymentCmd.AddCommand(createCmd)
 
-	createCmd.Flags().StringVarP(&region, "region", "r", region, "AWS region to deploy in")
+	createCmd.Flags().StringVarP(&region, "region", "r", region, "AWS region")
+	createCmd.Flags().StringVarP(&profile, "profile", "p", profile, "AWS profile")
 	createCmd.Flags().IPVar(&allowedIp, "allowed-ip", allowedIp, "allow-listed IP address")
 	createCmd.Flags().BoolVar(&autoIp, "auto-ip", autoIp, "automatically determine allow-listed IP")
 
