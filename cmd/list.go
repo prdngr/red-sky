@@ -8,9 +8,10 @@ import (
 )
 
 var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List all deployments",
-	Run:   runList,
+	Use:     "list",
+	Short:   "List all deployments",
+	GroupID: groupMain,
+	Run:     runList,
 }
 
 func runList(cmd *cobra.Command, args []string) {
@@ -29,5 +30,5 @@ func runList(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	deploymentCmd.AddCommand(listCmd)
+	rootCmd.AddCommand(listCmd)
 }

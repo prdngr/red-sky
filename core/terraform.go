@@ -32,15 +32,14 @@ type Terraform struct {
 
 type TerraformOutput struct {
 	DeploymentId string
-	InstanceId   string
 	InstanceIp   string
 	SshKeyFile   string
 }
 
 type WorkspaceInfo struct {
-	Profile string
-	Region  string
-	Random  string
+	Random         string
+	Region         string
+	DeploymentType string
 }
 
 func (*Terraform) New() *Terraform {
@@ -83,14 +82,14 @@ func (tf *Terraform) GetWorkspaces() []string {
 	return nonDefaultWorkspaces
 }
 
-func (tf *Terraform) CreateWorkspace(profile string, region string) string {
-	workspace := generateWorkspaceName(profile, region)
+func (tf *Terraform) CreateWorkspace(region string, deploymentType string) string {
+	workspaceName := generateWorkspaceName(region, deploymentType)
 
-	if err := tf.instance.WorkspaceNew(context.Background(), workspace); err != nil {
+	if err := tf.instance.WorkspaceNew(context.Background(), workspaceName); err != nil {
 		log.Fatalf("error creating Terraform workspace: %s", err)
 	}
 
-	return workspace
+	return workspaceName
 }
 
 func (tf *Terraform) DeleteWorkspace(workspace string) {
@@ -103,50 +102,54 @@ func (tf *Terraform) DeleteWorkspace(workspace string) {
 	}
 }
 
-func (tf *Terraform) ApplyDeployment(workspace string, allowedIp net.IP) {
+func (tf *Terraform) ApplyDeployment(profile string, region string, deploymentType string, allowedIp net.IP) {
 	StartSpinner("Deploying Nessus")
 
-	workspaceInfo := parseWorkspaceName(workspace)
+	workspaceName := tf.CreateWorkspace(region, deploymentType)
 
-	var options = []tfexec.ApplyOption{
-		createVar("aws_profile", workspaceInfo.Profile),
-		createVar("aws_region", workspaceInfo.Region),
+	var options = []tfexec.PlanOption{
+		createVar("aws_profile", profile),
+		createVar("aws_region", region),
 		createVar("key_directory", GetNodDir()),
-		createVar("deployment_id", workspace),
+		createVar("deployment_id", workspaceName),
+		createVar("deployment_type", deploymentType),
 	}
 
 	if allowedIp.To4() != nil && !allowedIp.IsLoopback() {
 		options = append(options, createVar("allowed_ip", allowedIp.String()))
 	}
 
-	if tf.instance.Apply(context.Background(), options...) != nil {
+	if _, err := tf.instance.Plan(context.Background(), options...); err != nil {
 		StopSpinnerError("Deployment failed")
-		tf.DeleteWorkspace(workspace)
+		tf.DeleteWorkspace(workspaceName)
 		return // TODO Handle error.
 	}
 
 	StopSpinner("Nessus deployed")
 }
 
-func (tf *Terraform) DestroyDeployment(workspace string) {
+func (tf *Terraform) DestroyDeployment(profile string, workspaceName string) {
 	StartSpinner("Destroying deployment")
 
-	if err := tf.instance.WorkspaceSelect(context.Background(), workspace); err != nil {
+	if err := tf.instance.WorkspaceSelect(context.Background(), workspaceName); err != nil {
 		log.Fatalf("error selecting Terraform workspace: %s", err)
 	}
 
-	workspaceInfo := parseWorkspaceName(workspace)
+	workspaceInfo := parseWorkspaceName(workspaceName)
 
 	var options = []tfexec.DestroyOption{
-		createVar("aws_profile", workspaceInfo.Profile),
+		createVar("aws_profile", profile),
 		createVar("aws_region", workspaceInfo.Region),
 		createVar("key_directory", GetNodDir()),
-		createVar("deployment_id", workspace),
+		createVar("deployment_id", workspaceName),
+		createVar("deployment_type", workspaceInfo.DeploymentType),
 	}
 
 	if err := tf.instance.Destroy(context.Background(), options...); err != nil {
 		log.Fatalf("error destroying Terraform deployment: %s", err)
 	}
+
+	tf.DeleteWorkspace(workspaceName)
 
 	StopSpinner("Deployment destroyed")
 }
@@ -163,16 +166,15 @@ func (tf *Terraform) GetDeploymentDetails() *TerraformOutput {
 
 	return &TerraformOutput{
 		DeploymentId: strings.Trim(string(outputs["deployment_id"].Value), "\""),
-		InstanceId:   strings.Trim(string(outputs["instance_id"].Value), "\""),
 		InstanceIp:   strings.Trim(string(outputs["instance_ip"].Value), "\""),
 		SshKeyFile:   strings.Trim(string(outputs["ssh_key_file"].Value), "\""),
 	}
 }
 
-func generateWorkspaceName(profile string, region string) string {
+func generateWorkspaceName(region string, deploymentType string) string {
 	squid, _ := sqids.New()
 	id, _ := squid.Encode([]uint64{uint64(time.Now().UnixNano())})
-	return fmt.Sprintf("%s=%s=%s", profile, region, id)
+	return fmt.Sprintf("%s=%s=%s", id, region, deploymentType)
 }
 
 func parseWorkspaceName(workspace string) *WorkspaceInfo {
@@ -182,9 +184,9 @@ func parseWorkspaceName(workspace string) *WorkspaceInfo {
 	}
 
 	return &WorkspaceInfo{
-		Profile: parts[0],
-		Region:  parts[1],
-		Random:  parts[2],
+		Random:         parts[0],
+		Region:         parts[1],
+		DeploymentType: parts[2],
 	}
 }
 

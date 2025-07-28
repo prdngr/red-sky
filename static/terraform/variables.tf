@@ -1,13 +1,13 @@
-variable "aws_region" {
-  type        = string
-  default     = "eu-central-1"
-  description = "The AWS region to deploy in"
-}
-
 variable "aws_profile" {
   type        = string
   default     = "default"
   description = "The AWS profile to use for deployment"
+}
+
+variable "aws_region" {
+  type        = string
+  default     = "eu-central-1"
+  description = "The AWS region to deploy in"
 }
 
 variable "deployment_id" {

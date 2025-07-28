@@ -18,9 +18,10 @@ var (
 )
 
 var createCmd = &cobra.Command{
-	Use:   "create",
-	Short: "Create a deployment",
-	Run:   runCreate,
+	Use:     "create",
+	Short:   "Create a deployment",
+	GroupID: groupMain,
+	Run:     runCreate,
 }
 
 func runCreate(cmd *cobra.Command, args []string) {
@@ -35,9 +36,8 @@ func runCreate(cmd *cobra.Command, args []string) {
 	}
 
 	tf := (*core.Terraform).New(nil)
-	workspace := tf.CreateWorkspace(profile, region)
 
-	tf.ApplyDeployment(workspace, allowedIp)
+	tf.ApplyDeployment(profile, region, "nessus", allowedIp)
 	details := tf.GetDeploymentDetails()
 
 	core.PrintHeader("Deployment Summary")
@@ -57,7 +57,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	deploymentCmd.AddCommand(createCmd)
+	rootCmd.AddCommand(createCmd)
 
 	createCmd.Flags().StringVarP(&profile, "profile", "p", profile, "AWS profile")
 	createCmd.Flags().StringVarP(&region, "region", "r", region, "AWS region")

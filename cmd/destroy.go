@@ -9,10 +9,11 @@ import (
 )
 
 var destroyCmd = &cobra.Command{
-	Use:   "destroy [flags] DEPLOYMENT [DEPLOYMENT...]",
-	Short: "Destroy a deployment",
-	Args:  cobra.MinimumNArgs(1),
-	Run:   runDestroy,
+	Use:     "destroy [flags] DEPLOYMENT [DEPLOYMENT...]",
+	Short:   "Destroy a deployment",
+	Args:    cobra.MinimumNArgs(1),
+	GroupID: groupMain,
+	Run:     runDestroy,
 }
 
 func runDestroy(cmd *cobra.Command, args []string) {
@@ -25,11 +26,10 @@ func runDestroy(cmd *cobra.Command, args []string) {
 			continue
 		}
 
-		tf.DestroyDeployment(deploymentId)
-		tf.DeleteWorkspace(deploymentId)
+		tf.DestroyDeployment(profile, deploymentId)
 	}
 }
 
 func init() {
-	deploymentCmd.AddCommand(destroyCmd)
+	rootCmd.AddCommand(destroyCmd)
 }
