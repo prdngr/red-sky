@@ -25,3 +25,12 @@ variable "allowed_ip" {
   default     = null
   description = "(Optional) the allow-listed IP address for ingress traffic"
 }
+
+variable "deployment_type" {
+  type        = string
+  description = "Type of deployment (nessus or kali)"
+  validation {
+    condition     = contains(["nessus", "kali"], var.deployment_type)
+    error_message = "Deployment type must be either 'nessus' or 'kali'"
+  }
+}
