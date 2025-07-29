@@ -14,6 +14,8 @@ require (
 	github.com/sqids/sqids-go v0.4.1
 )
 
+require github.com/google/uuid v1.6.0 // indirect
+
 require (
 	github.com/ProtonMail/go-crypto v1.3.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect

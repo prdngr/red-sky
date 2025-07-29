@@ -7,9 +7,9 @@ import (
 	"net"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/adrg/xdg"
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-version"
 	install "github.com/hashicorp/hc-install"
 	"github.com/hashicorp/hc-install/fs"
@@ -17,7 +17,6 @@ import (
 	"github.com/hashicorp/hc-install/releases"
 	"github.com/hashicorp/hc-install/src"
 	"github.com/hashicorp/terraform-exec/tfexec"
-	"github.com/sqids/sqids-go"
 )
 
 const (
@@ -34,12 +33,6 @@ type TerraformOutput struct {
 	DeploymentId string
 	InstanceIp   string
 	SshKeyFile   string
-}
-
-type WorkspaceInfo struct {
-	Random         string
-	Region         string
-	DeploymentType string
 }
 
 func (*Terraform) New() *Terraform {
@@ -82,8 +75,8 @@ func (tf *Terraform) GetWorkspaces() []string {
 	return nonDefaultWorkspaces
 }
 
-func (tf *Terraform) CreateWorkspace(region string, deploymentType string) string {
-	workspaceName := generateWorkspaceName(region, deploymentType)
+func (tf *Terraform) CreateWorkspace() string {
+	workspaceName := uuid.NewString()
 
 	if err := tf.instance.WorkspaceNew(context.Background(), workspaceName); err != nil {
 		log.Fatalf("error creating Terraform workspace: %s", err)
@@ -105,24 +98,32 @@ func (tf *Terraform) DeleteWorkspace(workspace string) {
 func (tf *Terraform) ApplyDeployment(profile string, region string, deploymentType string, allowedIp net.IP) {
 	StartSpinner("Deploying Nessus")
 
-	workspaceName := tf.CreateWorkspace(region, deploymentType)
+	workspaceName := tf.CreateWorkspace()
 
-	var options = []tfexec.PlanOption{
-		createVar("aws_profile", profile),
-		createVar("aws_region", region),
-		createVar("key_directory", GetNodDir()),
-		createVar("deployment_id", workspaceName),
-		createVar("deployment_type", deploymentType),
+	vars := map[string]string{
+		"aws_profile":     profile,
+		"aws_region":      region,
+		"key_directory":   GetNodDir(),
+		"deployment_id":   workspaceName,
+		"deployment_type": deploymentType,
 	}
 
 	if allowedIp.To4() != nil && !allowedIp.IsLoopback() {
-		options = append(options, createVar("allowed_ip", allowedIp.String()))
+		vars["allowed_ip"] = allowedIp.String()
 	}
 
-	if _, err := tf.instance.Plan(context.Background(), options...); err != nil {
+	varFilePath := getVarFilePath(workspaceName)
+
+	if err := writeVarFile(varFilePath, vars); err != nil {
 		StopSpinnerError("Deployment failed")
 		tf.DeleteWorkspace(workspaceName)
-		return // TODO Handle error.
+		log.Fatalf("error creating tfvars file: %s", err)
+	}
+
+	if err := tf.instance.Apply(context.Background(), tfexec.VarFile(varFilePath)); err != nil {
+		StopSpinnerError("Deployment failed")
+		tf.DeleteWorkspace(workspaceName)
+		log.Fatalf("error deploying: %s", err)
 	}
 
 	StopSpinner("Nessus deployed")
@@ -135,17 +136,7 @@ func (tf *Terraform) DestroyDeployment(profile string, workspaceName string) {
 		log.Fatalf("error selecting Terraform workspace: %s", err)
 	}
 
-	workspaceInfo := parseWorkspaceName(workspaceName)
-
-	var options = []tfexec.DestroyOption{
-		createVar("aws_profile", profile),
-		createVar("aws_region", workspaceInfo.Region),
-		createVar("key_directory", GetNodDir()),
-		createVar("deployment_id", workspaceName),
-		createVar("deployment_type", workspaceInfo.DeploymentType),
-	}
-
-	if err := tf.instance.Destroy(context.Background(), options...); err != nil {
+	if err := tf.instance.Destroy(context.Background(), tfexec.VarFile(getVarFilePath(workspaceName))); err != nil {
 		log.Fatalf("error destroying Terraform deployment: %s", err)
 	}
 
@@ -171,27 +162,29 @@ func (tf *Terraform) GetDeploymentDetails() *TerraformOutput {
 	}
 }
 
-func generateWorkspaceName(region string, deploymentType string) string {
-	squid, _ := sqids.New()
-	id, _ := squid.Encode([]uint64{uint64(time.Now().UnixNano())})
-	return fmt.Sprintf("%s=%s=%s", id, region, deploymentType)
-}
+func writeVarFile(varFilePath string, vars map[string]string) error {
+	varFile, err := os.Create(varFilePath)
+	if err != nil {
+		return err
+	}
+	defer varFile.Close()
 
-func parseWorkspaceName(workspace string) *WorkspaceInfo {
-	parts := strings.Split(workspace, "=")
-	if len(parts) != 3 {
-		log.Fatalf("error parsing workspace name: %s", workspace)
+	for key, value := range vars {
+		if _, err = fmt.Fprintf(varFile, "%s = \"%s\"\n", key, value); err != nil {
+			return err
+		}
 	}
 
-	return &WorkspaceInfo{
-		Random:         parts[0],
-		Region:         parts[1],
-		DeploymentType: parts[2],
-	}
+	return nil
 }
 
-func createVar(key string, value string) *tfexec.VarOption {
-	return tfexec.Var(key + "=" + value)
+func getVarFilePath(workspaceName string) string {
+	varFile, err := xdg.DataFile(terraformWorkingDir + workspaceName + ".tfvars")
+	if err != nil {
+		log.Fatalf("error searching for tfvars file: %s", err)
+	}
+
+	return varFile
 }
 
 func getTerraformWorkingDir() string {

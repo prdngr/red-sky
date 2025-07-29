@@ -37,7 +37,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 
 	tf := (*core.Terraform).New(nil)
 
-	tf.ApplyDeployment(profile, region, "nessus", allowedIp)
+	tf.ApplyDeployment(profile, region, "kali", allowedIp)
 	details := tf.GetDeploymentDetails()
 
 	core.PrintHeader("Deployment Summary")
@@ -47,6 +47,9 @@ func runCreate(cmd *cobra.Command, args []string) {
 	fmt.Printf("Allowed IP Address: %s\n", allowedIp)
 
 	core.PrintHeader("Next Steps")
+
+	fmt.Println("▶ Connect to the instance via SSH using the command below.")
+	color.Cyan("  $ ssh -i '%s' ec2-user@%s", details.SshKeyFile, details.InstanceIp)
 
 	if allowedIp.IsLoopback() {
 		fmt.Println("▶ Forward the Nessus web interface port to your machine using the command below. Then access it via https://localhost:8834.")
