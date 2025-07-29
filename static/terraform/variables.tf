@@ -1,12 +1,10 @@
 variable "aws_profile" {
   type        = string
-  default     = "default"
   description = "The AWS profile to use for deployment"
 }
 
 variable "aws_region" {
   type        = string
-  default     = "eu-central-1"
   description = "The AWS region to deploy in"
 }
 
@@ -23,14 +21,14 @@ variable "key_directory" {
 variable "allowed_ip" {
   type        = string
   default     = null
-  description = "(Optional) the allow-listed IP address for ingress traffic"
+  description = "The allow-listed IP address for ingress traffic"
 }
 
 variable "deployment_type" {
   type        = string
-  description = "Type of deployment (nessus or kali)"
+  description = "Type of deployment (nessus, kali, or c2)"
   validation {
-    condition     = contains(["nessus", "kali"], var.deployment_type)
-    error_message = "Deployment type must be either 'nessus' or 'kali'"
+    condition     = contains(["nessus", "kali", "c2"], var.deployment_type)
+    error_message = "Deployment type must be either 'nessus', 'kali', or 'c2'"
   }
 }

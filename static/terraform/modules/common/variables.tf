@@ -18,6 +18,11 @@ variable "ami_id" {
   description = "AMI ID to deploy"
 }
 
+variable "user_data" {
+  type        = string
+  description = "User data script to run on instance launch"
+}
+
 variable "ingress_rules" {
   type = list(object({
     port        = number

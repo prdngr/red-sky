@@ -4,6 +4,7 @@
 
 resource "aws_instance" "this" {
   ami                    = var.ami_id
+  user_data              = var.user_data
   instance_type          = var.instance_type
   vpc_security_group_ids = [aws_security_group.this.id]
   key_name               = aws_key_pair.this.key_name
