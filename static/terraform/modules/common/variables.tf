@@ -25,9 +25,10 @@ variable "user_data" {
 
 variable "ingress_rules" {
   type = list(object({
-    port        = number
-    cidr_ipv4   = string
-    description = string
+    port           = number
+    cidr_ipv4      = optional(string)
+    prefix_list_id = optional(string)
+    description    = string
   }))
   description = "List of security group ingress rules"
 }

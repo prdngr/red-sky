@@ -21,3 +21,10 @@ module "common" {
   user_data     = local.user_data[var.deployment_type]
   ingress_rules = local.ingress_rules[var.deployment_type]
 }
+
+module "cdn" {
+  source = "./modules/cdn"
+
+  count  = var.deployment_type == "c2" ? 1 : 0
+  origin_domain = module.common.instance_fqdn
+}

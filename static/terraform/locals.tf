@@ -8,7 +8,7 @@ locals {
   user_data = {
     nessus = null
     kali   = null
-    c2 = file("${path.module}/scripts/c2-user-data.sh")
+    c2     = file("${path.module}/scripts/c2-user-data.sh")
   }
 
   ingress_rules = {
@@ -41,6 +41,11 @@ locals {
         port        = 7443
         cidr_ipv4   = var.allowed_ip == null ? "127.0.0.1/32" : "${var.allowed_ip}/32"
         description = "Allow Mythic interface access"
+      },
+      {
+        port           = 80
+        prefix_list_id = data.aws_ec2_managed_prefix_list.cloudfront.id
+        description    = "Allow HTTP access from CloudFront"
       }
     ]
   }

@@ -11,10 +11,11 @@ import (
 )
 
 var (
-	profile   = "default"
-	region    = "eu-central-1"
-	allowedIp = net.ParseIP("127.0.0.1")
-	autoIp    = false
+	profile        = "default"
+	region         = "eu-central-1"
+	autoIp         = false
+	allowedIp      = net.ParseIP("127.0.0.1")
+	deploymentType string
 )
 
 var createCmd = &cobra.Command{
@@ -25,6 +26,11 @@ var createCmd = &cobra.Command{
 }
 
 func runCreate(cmd *cobra.Command, args []string) {
+	// TODO Improve input validation and error handling.
+	if deploymentType != "nessus" && deploymentType != "kali" && deploymentType != "c2" {
+		log.Fatalf("Invalid deployment type: '%s'. Allowed types are 'nessus', 'kali', or 'c2'.", deploymentType)
+	}
+
 	core.InitializeAwsSession(profile)
 
 	if autoIp {
@@ -37,7 +43,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 
 	tf := (*core.Terraform).New(nil)
 
-	tf.ApplyDeployment(profile, region, "kali", allowedIp)
+	tf.ApplyDeployment(profile, region, deploymentType, allowedIp)
 	details := tf.GetDeploymentDetails()
 
 	core.PrintHeader("Deployment Summary")
@@ -51,12 +57,13 @@ func runCreate(cmd *cobra.Command, args []string) {
 	fmt.Println("▶ Connect to the instance via SSH using the command below.")
 	color.Cyan("  $ ssh -i '%s' ec2-user@%s", details.SshKeyFile, details.InstanceIp)
 
-	if allowedIp.IsLoopback() {
-		fmt.Println("▶ Forward the Nessus web interface port to your machine using the command below. Then access it via https://localhost:8834.")
-		color.Cyan("  $ ssh -N -L 8834:127.0.0.1:8834 -i '%s' ec2-user@%s", details.SshKeyFile, details.InstanceIp)
+	if deploymentType == "nessus" {
+		if allowedIp.IsLoopback() {
+			fmt.Println("▶ Forward the Nessus web interface port to your machine using the command below. Then access it via https://localhost:8834.")
+			color.Cyan("  $ ssh -N -L 8834:127.0.0.1:8834 -i '%s' ec2-user@%s", details.SshKeyFile, details.InstanceIp)
+		}
+		fmt.Println("▶ Open the Nessus interface in your browser, sign up, and activate your license.")
 	}
-
-	fmt.Println("▶ Open the Nessus interface in your browser, sign up, and activate your license.")
 }
 
 func init() {
@@ -64,8 +71,10 @@ func init() {
 
 	createCmd.Flags().StringVarP(&profile, "profile", "p", profile, "AWS profile")
 	createCmd.Flags().StringVarP(&region, "region", "r", region, "AWS region")
+	createCmd.Flags().StringVarP(&deploymentType, "type", "t", "", "Deployment type (nessus, kali, or c2)")
 	createCmd.Flags().IPVar(&allowedIp, "allowed-ip", allowedIp, "allow-listed IP address")
 	createCmd.Flags().BoolVar(&autoIp, "auto-ip", autoIp, "automatically determine allow-listed IP")
 
+	createCmd.MarkFlagRequired("type")
 	createCmd.MarkFlagsMutuallyExclusive("allowed-ip", "auto-ip")
 }

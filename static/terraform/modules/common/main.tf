@@ -47,8 +47,9 @@ resource "aws_vpc_security_group_ingress_rule" "ingress_rules" {
   security_group_id = aws_security_group.this.id
   description       = var.ingress_rules[count.index].description
 
-  ip_protocol = "tcp"
-  cidr_ipv4   = var.ingress_rules[count.index].cidr_ipv4
-  from_port   = var.ingress_rules[count.index].port
-  to_port     = var.ingress_rules[count.index].port
+  ip_protocol    = "tcp"
+  prefix_list_id = var.ingress_rules[count.index].prefix_list_id
+  cidr_ipv4      = var.ingress_rules[count.index].cidr_ipv4
+  from_port      = var.ingress_rules[count.index].port
+  to_port        = var.ingress_rules[count.index].port
 }
