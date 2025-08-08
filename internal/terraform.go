@@ -21,9 +21,10 @@ type Terraform struct {
 }
 
 type TerraformOutput struct {
-	DeploymentId string
-	InstanceIp   string
-	SshKeyFile   string
+	DeploymentId  string
+	InstanceIp    string
+	SshKeyFile    string
+	CloudFrontUrl string
 }
 
 const (
@@ -92,7 +93,7 @@ func (tf *Terraform) DeleteWorkspace(workspace string) {
 }
 
 func (tf *Terraform) ApplyDeployment(profile string, region string, deploymentType string, allowedIp net.IP) {
-	StartSpinner("Executing deployments")
+	StartSpinner("Executing deployment")
 
 	workspaceName := tf.CreateWorkspace()
 
@@ -152,9 +153,10 @@ func (tf *Terraform) GetDeploymentDetails() *TerraformOutput {
 	StopSpinner("Deployment details gathered")
 
 	return &TerraformOutput{
-		DeploymentId: strings.Trim(string(outputs["deployment_id"].Value), "\""),
-		InstanceIp:   strings.Trim(string(outputs["instance_ip"].Value), "\""),
-		SshKeyFile:   strings.Trim(string(outputs["ssh_key_file"].Value), "\""),
+		DeploymentId:  strings.Trim(string(outputs["deployment_id"].Value), "\""),
+		InstanceIp:    strings.Trim(string(outputs["instance_ip"].Value), "\""),
+		SshKeyFile:    strings.Trim(string(outputs["ssh_key_file"].Value), "\""),
+		CloudFrontUrl: strings.Trim(string(outputs["cloudfront_url"].Value), "\""),
 	}
 }
 

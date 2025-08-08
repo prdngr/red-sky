@@ -48,21 +48,36 @@ func runCreate(cmd *cobra.Command, args []string) {
 
 	internal.PrintHeader("Deployment Summary")
 
-	fmt.Printf("Deployment ID: %s\n", details.DeploymentId)
-	fmt.Printf("Nessus Interface: %s\n", "https://"+details.InstanceIp+":8834")
-	fmt.Printf("Allowed IP Address: %s\n", allowedIp)
+	fmt.Printf("▶ Deployment ID: %s\n", details.DeploymentId)
+	fmt.Printf("▶ Allowed IP Address: %s\n", allowedIp)
 
-	internal.PrintHeader("Next Steps")
+	internal.PrintHeader("Connection Details")
 
-	fmt.Println("▶ Connect to the instance via SSH using the command below.")
-	color.Cyan("  $ ssh -i '%s' ec2-user@%s", details.SshKeyFile, details.InstanceIp)
-
-	if deploymentType == "nessus" {
+	switch deploymentType {
+	case "nessus":
 		if allowedIp.IsLoopback() {
-			fmt.Println("▶ Forward the Nessus web interface port to your machine using the command below. Then access it via https://localhost:8834.")
+			fmt.Println("▶ Use the following command to forward the Nessus web interface locally, then access it via https://localhost:8834:")
 			color.Cyan("  $ ssh -N -L 8834:127.0.0.1:8834 -i '%s' ec2-user@%s", details.SshKeyFile, details.InstanceIp)
+		} else {
+			fmt.Printf("▶ Access the Nessus web interface via https://%s:8834\n", details.InstanceIp)
 		}
-		fmt.Println("▶ Open the Nessus interface in your browser, sign up, and activate your license.")
+
+		fmt.Println("▶ Use the following command to SSH into the Nessus instance:")
+		color.Cyan("  $ ssh -i '%s' ec2-user@%s", details.SshKeyFile, details.InstanceIp)
+	case "kali":
+		fmt.Println("▶ Use the following command to SSH into the Kali instance:")
+		color.Cyan("  $ ssh -i '%s' kali@%s", details.SshKeyFile, details.InstanceIp)
+	case "c2":
+		if allowedIp.IsLoopback() {
+			fmt.Println("▶ Use the following command to forward the C2 web interface locally, then access it via https://localhost:8834:")
+			color.Cyan("  $ ssh -N -L 7443:127.0.0.1:7443 -i '%s' kali@%s", details.SshKeyFile, details.InstanceIp)
+		} else {
+			fmt.Printf("▶ Access the C2 web interface via https://%s:7443\n", details.InstanceIp)
+		}
+
+		fmt.Printf("▶ Use the following URL for HTTPS callbacks: %s\n", details.CloudFrontUrl)
+		fmt.Println("▶ Use the following command to SSH into the C2 instance:")
+		color.Cyan("  $ ssh -i '%s' kali@%s", details.SshKeyFile, details.InstanceIp)
 	}
 }
 

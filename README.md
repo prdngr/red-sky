@@ -31,7 +31,7 @@ To install RedSky, use the `go install` command.
 $ go install github.com/prdngr/red-sky@latest
 ```
 
-Once installed, the easiest way of spinning up an instance using RedSky looks as follows:
+Once installed, the easiest way of spinning up a Kali instance using RedSky looks as follows:
 
 ```bash
 $ red-sky create --type kali --region eu-west-1 --auto-ip
@@ -42,22 +42,32 @@ $ red-sky create --type kali --region eu-west-1 --auto-ip
      / _, _/  __/ /_/ /___/ / ,< / /_/ /
     /_/ |_|\___/\__,_//____/_/|_|\__, /
                                 /____/
-	
-RedSky initialized ✅
-Deployments retrieved ✅
-Deployment details gathered ✅
+
+✅ AWS session initialized
+
+AWS Account Information
+-----------------------
+
+▶ Account: 444444444444 (red-sky)
+▶ Caller ARN: arn:aws:iam::444444444444:user/red-sky
+
+Press Enter to continue...
+
+✅ RedSky initialized
+✅ Deployment executed
+✅ Deployment details gathered
 
 Deployment Summary
 ------------------
 
-Deployment ID: 90d6c9be-edf0-4ee9-ac0b-c7ed701c6f70
-Allowed IP Address: <your-ip-address>
+▶ Deployment ID: d1505235-2e81-49b0-8bb6-3b1b76616b00
+▶ Allowed IP Address: 42.42.42.42
 
-Next Steps
-----------
+Connection Details
+------------------
 
-▶ Connect to the instance via SSH using the command below.
-  $ ssh -i '<key-file>' kali@3.176.102.79"
+▶ Use the following command to SSH into the Kali instance:
+  $ ssh -i 'd1505235-2e81-49b0-8bb6-3b1b76616b00.pem' kali@62.62.62.62
 ```
 
 ## Contributing

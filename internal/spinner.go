@@ -25,7 +25,7 @@ func StopSpinnerError(message string) {
 	stopSpinner("🛑", message)
 }
 
-func stopSpinner(message string, prefix string) {
+func stopSpinner(prefix string, message string) {
 	if spin == nil || !spin.Active() {
 		return
 	}

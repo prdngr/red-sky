@@ -25,7 +25,7 @@ func runList(cmd *cobra.Command, args []string) {
 	}
 
 	for _, workspace := range workspaces {
-		fmt.Println(workspace)
+		fmt.Printf("▶ %s\n", workspace)
 	}
 }
 
