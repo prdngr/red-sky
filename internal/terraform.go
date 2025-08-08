@@ -1,14 +1,11 @@
-package core
+package internal
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net"
-	"os"
 	"strings"
 
-	"github.com/adrg/xdg"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-version"
 	install "github.com/hashicorp/hc-install"
@@ -17,12 +14,6 @@ import (
 	"github.com/hashicorp/hc-install/releases"
 	"github.com/hashicorp/hc-install/src"
 	"github.com/hashicorp/terraform-exec/tfexec"
-)
-
-const (
-	defaultWorkspace    = "default"
-	terraformVersion    = "~> 1.10"
-	terraformWorkingDir = RedSkyDir + "terraform/"
 )
 
 type Terraform struct {
@@ -34,6 +25,11 @@ type TerraformOutput struct {
 	InstanceIp   string
 	SshKeyFile   string
 }
+
+const (
+	defaultWorkspace = "default"
+	terraformVersion = "~> 1.10"
+)
 
 func (*Terraform) New() *Terraform {
 	StartSpinner("Initializing RedSky")
@@ -96,14 +92,14 @@ func (tf *Terraform) DeleteWorkspace(workspace string) {
 }
 
 func (tf *Terraform) ApplyDeployment(profile string, region string, deploymentType string, allowedIp net.IP) {
-	StartSpinner("Deploying Nessus")
+	StartSpinner("Executing deployments")
 
 	workspaceName := tf.CreateWorkspace()
 
 	vars := map[string]string{
 		"aws_profile":     profile,
 		"aws_region":      region,
-		"key_directory":   GetNodDir(),
+		"key_directory":   getRedSkyDir(),
 		"deployment_id":   workspaceName,
 		"deployment_type": deploymentType,
 	}
@@ -126,7 +122,7 @@ func (tf *Terraform) ApplyDeployment(profile string, region string, deploymentTy
 		log.Fatalf("error deploying: %s", err)
 	}
 
-	StopSpinner("Nessus deployed")
+	StopSpinner("Deployment executed")
 }
 
 func (tf *Terraform) DestroyDeployment(profile string, workspaceName string) {
@@ -160,50 +156,6 @@ func (tf *Terraform) GetDeploymentDetails() *TerraformOutput {
 		InstanceIp:   strings.Trim(string(outputs["instance_ip"].Value), "\""),
 		SshKeyFile:   strings.Trim(string(outputs["ssh_key_file"].Value), "\""),
 	}
-}
-
-func writeVarFile(varFilePath string, vars map[string]string) error {
-	varFile, err := os.Create(varFilePath)
-	if err != nil {
-		return err
-	}
-	defer varFile.Close()
-
-	for key, value := range vars {
-		if _, err = fmt.Fprintf(varFile, "%s = \"%s\"\n", key, value); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func getVarFilePath(workspaceName string) string {
-	varFile, err := xdg.DataFile(terraformWorkingDir + workspaceName + ".tfvars")
-	if err != nil {
-		log.Fatalf("error searching for tfvars file: %s", err)
-	}
-
-	return varFile
-}
-
-func getTerraformWorkingDir() string {
-	workingDir, err := xdg.SearchDataFile(terraformWorkingDir)
-	if err != nil {
-		log.Fatalf("error getting Terraform working directory: %s", err)
-	}
-
-	return workingDir
-}
-
-func getTerraformInstallDir() string {
-	terraformInstallDir := xdg.BinHome
-
-	if err := os.MkdirAll(terraformInstallDir, filePermissions); err != nil {
-		log.Fatalf("error creating Terraform install directory: %s", err)
-	}
-
-	return terraformInstallDir
 }
 
 func getTerraformExecutable() string {

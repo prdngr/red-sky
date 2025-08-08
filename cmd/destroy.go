@@ -3,21 +3,21 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/prdngr/red-sky/core"
+	"github.com/prdngr/red-sky/internal"
 	"github.com/spf13/cobra"
 	"golang.org/x/exp/slices"
 )
 
 var destroyCmd = &cobra.Command{
-	Use:     "destroy [flags] DEPLOYMENT [DEPLOYMENT...]",
-	Short:   "Destroy a deployment",
+	Use:     "destroy DEPLOYMENT [DEPLOYMENT...]",
+	Short:   "Destroy deployment(s)",
 	Args:    cobra.MinimumNArgs(1),
 	GroupID: groupMain,
 	Run:     runDestroy,
 }
 
 func runDestroy(cmd *cobra.Command, args []string) {
-	tf := (*core.Terraform).New(nil)
+	tf := (*internal.Terraform).New(nil)
 	workspaces := tf.GetWorkspaces()
 
 	for _, deploymentId := range args {

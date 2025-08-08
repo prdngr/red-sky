@@ -3,7 +3,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/prdngr/red-sky/core"
+	"github.com/prdngr/red-sky/internal"
 	"github.com/spf13/cobra"
 )
 
@@ -14,9 +14,8 @@ const (
 
 var rootCmd = &cobra.Command{
 	Use:   "red-sky",
-	Short: "Manage just-in-time Nessus deployments in the cloud",
-	Long: `RedSky is a handy CLI utility for managing Nessus instances in AWS.
-Built using Terraform, RedSky safely bootstraps scanning infrastructure on a per-need basis.`,
+	Short: "The Calm Before the Breach",
+	Long:  "RedSky is a handy CLI utility for managing just-in-time offensive infrastructure in AWS.",
 }
 
 func Execute() {
@@ -26,7 +25,7 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(core.PrintBanner, core.InitNodDir)
+	cobra.OnInitialize(internal.PrintBanner, internal.InitRedSkyDir)
 
 	rootCmd.AddGroup(
 		&cobra.Group{ID: groupMain, Title: "Main Commands"},

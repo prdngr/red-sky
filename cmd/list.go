@@ -3,22 +3,22 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/prdngr/red-sky/core"
+	"github.com/prdngr/red-sky/internal"
 	"github.com/spf13/cobra"
 )
 
 var listCmd = &cobra.Command{
 	Use:     "list",
-	Short:   "List all deployments",
+	Short:   "List deployments",
 	GroupID: groupMain,
 	Run:     runList,
 }
 
 func runList(cmd *cobra.Command, args []string) {
-	tf := (*core.Terraform).New(nil)
+	tf := (*internal.Terraform).New(nil)
 	workspaces := tf.GetWorkspaces()
 
-	core.PrintHeader("Deployments")
+	internal.PrintHeader("Deployments")
 
 	if len(workspaces) == 0 {
 		fmt.Println("No deployments found")

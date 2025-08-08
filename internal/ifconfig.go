@@ -1,4 +1,4 @@
-package core
+package internal
 
 import (
 	"errors"
@@ -7,12 +7,10 @@ import (
 	"net/http"
 )
 
-const (
-	serviceUrl = "https://ifconfig.me/ip"
-)
+const ifconfigUrl = "https://ifconfig.me/ip"
 
 func GetPublicIp() (net.IP, error) {
-	response, err := http.Get(serviceUrl)
+	response, err := http.Get(ifconfigUrl)
 
 	if err != nil {
 		return nil, err

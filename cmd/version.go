@@ -9,7 +9,7 @@ import (
 
 var versionCmd = &cobra.Command{
 	Use:     "version",
-	Short:   "RedSky version",
+	Short:   "Show RedSky version",
 	GroupID: groupUtility,
 	Run: func(cmd *cobra.Command, args []string) {
 		versionInformation := internal.GetVersion()

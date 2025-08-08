@@ -6,7 +6,7 @@ import (
 	"net"
 
 	"github.com/fatih/color"
-	"github.com/prdngr/red-sky/core"
+	"github.com/prdngr/red-sky/internal"
 	"github.com/spf13/cobra"
 )
 
@@ -31,28 +31,28 @@ func runCreate(cmd *cobra.Command, args []string) {
 		log.Fatalf("Invalid deployment type: '%s'. Allowed types are 'nessus', 'kali', or 'c2'.", deploymentType)
 	}
 
-	core.InitializeAwsSession(profile)
+	internal.InitializeAwsSession(profile)
 
 	if autoIp {
-		if publicIp, err := core.GetPublicIp(); err != nil {
+		if publicIp, err := internal.GetPublicIp(); err != nil {
 			log.Fatalf("error determining public IP address: %s", err)
 		} else {
 			allowedIp = publicIp
 		}
 	}
 
-	tf := (*core.Terraform).New(nil)
+	tf := (*internal.Terraform).New(nil)
 
 	tf.ApplyDeployment(profile, region, deploymentType, allowedIp)
 	details := tf.GetDeploymentDetails()
 
-	core.PrintHeader("Deployment Summary")
+	internal.PrintHeader("Deployment Summary")
 
 	fmt.Printf("Deployment ID: %s\n", details.DeploymentId)
 	fmt.Printf("Nessus Interface: %s\n", "https://"+details.InstanceIp+":8834")
 	fmt.Printf("Allowed IP Address: %s\n", allowedIp)
 
-	core.PrintHeader("Next Steps")
+	internal.PrintHeader("Next Steps")
 
 	fmt.Println("▶ Connect to the instance via SSH using the command below.")
 	color.Cyan("  $ ssh -i '%s' ec2-user@%s", details.SshKeyFile, details.InstanceIp)
