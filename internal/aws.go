@@ -9,8 +9,8 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	v2iam "github.com/aws/aws-sdk-go-v2/service/iam"
-	v2sts "github.com/aws/aws-sdk-go-v2/service/sts"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
 )
 
 func InitializeAwsSession(profile string) {
@@ -21,16 +21,16 @@ func InitializeAwsSession(profile string) {
 		log.Fatalf("error loading AWS config: %s", err)
 	}
 
-	stsClient := v2sts.NewFromConfig(cfg)
-	identity, err := stsClient.GetCallerIdentity(context.Background(), &v2sts.GetCallerIdentityInput{})
+	stsClient := sts.NewFromConfig(cfg)
+	identity, err := stsClient.GetCallerIdentity(context.Background(), &sts.GetCallerIdentityInput{})
 
 	if err != nil {
 		log.Fatalf("error retrieving AWS account details: %s", err)
 	}
 
 	var accountAlias = "n/a"
-	iamClient := v2iam.NewFromConfig(cfg)
-	paginator := v2iam.NewListAccountAliasesPaginator(iamClient, &v2iam.ListAccountAliasesInput{})
+	iamClient := iam.NewFromConfig(cfg)
+	paginator := iam.NewListAccountAliasesPaginator(iamClient, &iam.ListAccountAliasesInput{})
 
 	for paginator.HasMorePages() {
 		page, err := paginator.NextPage(context.Background())
