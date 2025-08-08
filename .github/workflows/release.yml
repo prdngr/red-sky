@@ -1,4 +1,4 @@
-name: Release Nessus on Demand
+name: Release RedSky
 
 on:
   release:
@@ -17,10 +17,10 @@ jobs:
         goos: [linux, darwin]
         goarch: [amd64, arm64]
     steps:
-      - uses: actions/checkout@v4
-      - uses: wangyoucao577/go-release-action@v1.53
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: wangyoucao577/go-release-action@481a2c1a0f1be199722e3e9b74d7199acafc30a8 # v1.53
         with:
-          ldflags: -X github.com/prdngr/nessus-on-demand/internal.buildCommit=${{ github.sha }} -X github.com/prdngr/nessus-on-demand/internal.buildVersion=${{ github.event.release.tag_name }}
+          ldflags: -X github.com/prdngr/red-sky/internal.buildCommit=${{ github.sha }} -X github.com/prdngr/red-sky/internal.buildVersion=${{ github.event.release.tag_name }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}

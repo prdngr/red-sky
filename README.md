@@ -1,5 +1,5 @@
 <p align="center">
-    <h3 align="center">Nessus on Demand</h3>
+    <h3 align="center">RedSky</h3>
     <p align="center">
         A just-in-time Nessus solution for modern penetration testing teams.
     </p>
@@ -17,23 +17,23 @@
 
 ## About The Project
 
-Nessus on Demand (NoD) is a handy CLI utility for managing Nessus instances in AWS. Built using Terraform, NoD safely bootstraps scanning infrastructure on a per-need basis.
+RedSky is a handy CLI utility for managing Nessus instances in AWS. Built using Terraform, RedSky safely bootstraps scanning infrastructure on a per-need basis.
 
 ## Installation and Usage
 
-To install Nessus on Demand, use the `go install` command.
+To install RedSky, use the `go install` command.
 
 ```bash
-$ go install github.com/prdngr/nessus-on-demand@latest
+$ go install github.com/prdngr/red-sky@latest
 ```
 
-Once installed, the easiest way of spinning up an instance using NoD looks as follows:
+Once installed, the easiest way of spinning up an instance using RedSky looks as follows:
 
 > [!IMPORTANT]
 > The command shown below will use your AWS CLI default profile. If you want to use another profile instead, set the [`AWS_PROFILE`](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html#cli-configure-files-using-profiles) environment variable accordingly.
 
 ```bash
-$ nessus-on-demand deployment create --auto-ip --region eu-central-1
+$ red-sky deployment create --auto-ip --region eu-central-1
 
     ███╗   ██╗ ██████╗ ██████╗
     ████╗  ██║██╔═══██╗██╔══██╗
@@ -81,7 +81,7 @@ The project is developed according to the [GitFlow workflow](https://www.atlassi
     git push origin feature/<feature-name>
     ```
 
-4. Open a [pull request](https://github.com/prdngr/nessus-on-demand/pulls).
+4. Open a [pull request](https://github.com/prdngr/red-sky/pulls).
 
 ## License
 

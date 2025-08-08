@@ -6,7 +6,7 @@ import (
 	"net"
 
 	"github.com/fatih/color"
-	"github.com/prdngr/nessus-on-demand/core"
+	"github.com/prdngr/red-sky/core"
 	"github.com/spf13/cobra"
 )
 

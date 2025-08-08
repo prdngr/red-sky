@@ -3,7 +3,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/prdngr/nessus-on-demand/core"
+	"github.com/prdngr/red-sky/core"
 	"github.com/spf13/cobra"
 )
 
@@ -13,10 +13,10 @@ const (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "nessus-on-demand",
+	Use:   "red-sky",
 	Short: "Manage just-in-time Nessus deployments in the cloud",
-	Long: `Nessus on Demand (NoD) is a handy CLI utility for managing Nessus instances in AWS.
-Built using Terraform, NoD safely bootstraps scanning infrastructure on a per-need basis.`,
+	Long: `RedSky is a handy CLI utility for managing Nessus instances in AWS.
+Built using Terraform, RedSky safely bootstraps scanning infrastructure on a per-need basis.`,
 }
 
 func Execute() {

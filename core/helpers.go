@@ -10,26 +10,26 @@ import (
 
 	"github.com/adrg/xdg"
 	"github.com/fatih/color"
-	"github.com/prdngr/nessus-on-demand/internal"
-	"github.com/prdngr/nessus-on-demand/static"
+	"github.com/prdngr/red-sky/internal"
+	"github.com/prdngr/red-sky/static"
 )
 
 const (
-	NodDir          = "nod/"
-	initializedFile = NodDir + ".version"
+	RedSkyDir       = "red-sky/"
+	initializedFile = RedSkyDir + ".version"
 	filePermissions = 0700
 	nodBanner       = `
-    ███╗   ██╗ ██████╗ ██████╗
-    ████╗  ██║██╔═══██╗██╔══██╗
-    ██╔██╗ ██║██║   ██║██║  ██║
-    ██║╚██╗██║██║   ██║██║  ██║
-    ██║ ╚████║╚██████╔╝██████╔╝
-    ╚═╝  ╚═══╝ ╚═════╝ ╚═════╝
+        ____           _______ __
+       / __ \___  ____/ / ___// /____  __
+      / /_/ / _ \/ __  /\__ \/ //_/ / / /
+     / _, _/  __/ /_/ /___/ / ,< / /_/ /
+    /_/ |_|\___/\__,_//____/_/|_|\__, /
+                                /____/
 	`
 )
 
 func GetNodDir() string {
-	nodDir, err := xdg.SearchDataFile(NodDir)
+	nodDir, err := xdg.SearchDataFile(RedSkyDir)
 	if err != nil {
 		log.Fatalf("error getting NoD directory: %s", err)
 	}
@@ -56,7 +56,7 @@ func InitNodDir() {
 		}
 
 		if fileNeedsUpdate(path, data) {
-			diskPath, err := xdg.DataFile(NodDir + path)
+			diskPath, err := xdg.DataFile(RedSkyDir + path)
 			if err != nil {
 				return err
 			}
@@ -103,7 +103,7 @@ func writeVersionFile(version string) {
 }
 
 func fileNeedsUpdate(path string, data []byte) bool {
-	diskPath, err := xdg.DataFile(NodDir + path)
+	diskPath, err := xdg.DataFile(RedSkyDir + path)
 	if err != nil {
 		return true
 	}

@@ -22,7 +22,7 @@ import (
 const (
 	defaultWorkspace    = "default"
 	terraformVersion    = "~> 1.10"
-	terraformWorkingDir = NodDir + "terraform/"
+	terraformWorkingDir = RedSkyDir + "terraform/"
 )
 
 type Terraform struct {
@@ -36,7 +36,7 @@ type TerraformOutput struct {
 }
 
 func (*Terraform) New() *Terraform {
-	StartSpinner("Initializing NoD")
+	StartSpinner("Initializing RedSky")
 
 	tf, err := tfexec.NewTerraform(getTerraformWorkingDir(), getTerraformExecutable())
 	if err != nil {
@@ -47,7 +47,7 @@ func (*Terraform) New() *Terraform {
 		log.Fatalf("error initializing Terraform: %s", err)
 	}
 
-	StopSpinner("NoD initialized")
+	StopSpinner("RedSky initialized")
 
 	return &Terraform{instance: tf}
 }
