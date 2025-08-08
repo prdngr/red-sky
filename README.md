@@ -1,7 +1,7 @@
 <p align="center">
     <h3 align="center">RedSky</h3>
     <p align="center">
-        A just-in-time Nessus solution for modern penetration testing teams.
+        ☁️ The Calm Before the Breach
     </p>
 </p>
 
@@ -17,7 +17,11 @@
 
 ## About The Project
 
-RedSky is a handy CLI utility for managing Nessus instances in AWS. Built using Terraform, RedSky safely bootstraps scanning infrastructure on a per-need basis.
+RedSky is a handy CLI utility for managing just-in-time offensive infrastructure in AWS. Currently, RedSky supports the following deployment types:
+
+- Tenable Nessus (BYOL)
+- Kali Linux standalone
+- Kali Linux with Mythic C2
 
 ## Installation and Usage
 
@@ -29,34 +33,31 @@ $ go install github.com/prdngr/red-sky@latest
 
 Once installed, the easiest way of spinning up an instance using RedSky looks as follows:
 
-> [!IMPORTANT]
-> The command shown below will use your AWS CLI default profile. If you want to use another profile instead, set the [`AWS_PROFILE`](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html#cli-configure-files-using-profiles) environment variable accordingly.
-
 ```bash
-$ red-sky deployment create --auto-ip --region eu-central-1
+$ red-sky create --type kali --region eu-west-1 --auto-ip
 
-    ███╗   ██╗ ██████╗ ██████╗
-    ████╗  ██║██╔═══██╗██╔══██╗
-    ██╔██╗ ██║██║   ██║██║  ██║
-    ██║╚██╗██║██║   ██║██║  ██║
-    ██║ ╚████║╚██████╔╝██████╔╝
-    ╚═╝  ╚═══╝ ╚═════╝ ╚═════╝
-
-NoD initialized ✅
-Nessus deployed ✅
+        ____           _______ __
+       / __ \___  ____/ / ___// /____  __
+      / /_/ / _ \/ __  /\__ \/ //_/ / / /
+     / _, _/  __/ /_/ /___/ / ,< / /_/ /
+    /_/ |_|\___/\__,_//____/_/|_|\__, /
+                                /____/
+	
+RedSky initialized ✅
+Deployments retrieved ✅
 Deployment details gathered ✅
 
 Deployment Summary
 ------------------
 
 Deployment ID: 90d6c9be-edf0-4ee9-ac0b-c7ed701c6f70
-Nessus Interface: https://3.176.102.79:8834
-Allowed IP Address: 118.146.33.52
+Allowed IP Address: <your-ip-address>
 
 Next Steps
 ----------
 
-▶ Open the Nessus interface in your browser, sign up, and activate your license.
+▶ Connect to the instance via SSH using the command below.
+  $ ssh -i '<key-file>' kali@3.176.102.79"
 ```
 
 ## Contributing
@@ -85,4 +86,4 @@ The project is developed according to the [GitFlow workflow](https://www.atlassi
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the GNU GPLv3 License. See `LICENSE` for more information.

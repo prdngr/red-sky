@@ -20,7 +20,7 @@ var (
 
 var createCmd = &cobra.Command{
 	Use:     "create",
-	Short:   "Create a deployment",
+	Short:   "Create deployment",
 	GroupID: groupMain,
 	Run:     runCreate,
 }
