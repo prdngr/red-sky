@@ -25,7 +25,11 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(internal.PrintBanner, internal.InitRedSkyDir)
+	cobra.OnInitialize(
+		internal.ConfigureLogger,
+		internal.PrintBanner,
+		internal.InitRedSkyDir,
+	)
 
 	rootCmd.AddGroup(
 		&cobra.Group{ID: groupMain, Title: "Main Commands"},
