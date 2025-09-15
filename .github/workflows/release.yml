@@ -5,8 +5,7 @@ on:
     types: [created]
 
 permissions:
-  contents: write
-  packages: write
+  contents: write # Allows the Action to update the release.
 
 jobs:
   release-matrix:
@@ -17,7 +16,11 @@ jobs:
         goos: [linux, darwin]
         goarch: [amd64, arm64]
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
       - uses: wangyoucao577/go-release-action@481a2c1a0f1be199722e3e9b74d7199acafc30a8 # v1.53
         with:
           ldflags: -X github.com/prdngr/red-sky/internal.buildCommit=${{ github.sha }} -X github.com/prdngr/red-sky/internal.buildVersion=${{ github.event.release.tag_name }}
