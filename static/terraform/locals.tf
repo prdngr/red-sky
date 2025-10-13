@@ -11,6 +11,12 @@ locals {
     c2     = file("${path.module}/scripts/c2-user-data.sh")
   }
 
+  instance_type = {
+    nessus = "m5.xlarge"
+    kali   = "m5.large"
+    c2     = "m5.large"
+  }
+
   ingress_rules = {
     nessus = [
       {

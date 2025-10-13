@@ -8,6 +8,10 @@ resource "aws_instance" "this" {
   instance_type          = var.instance_type
   vpc_security_group_ids = [aws_security_group.this.id]
   key_name               = aws_key_pair.this.key_name
+
+  root_block_device {
+    volume_size = 30
+  }
 }
 
 # ------------------------------------------------------------------------------
