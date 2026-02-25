@@ -30,7 +30,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sso v1.27.0 // indirect
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.32.0 // indirect
 	github.com/aws/smithy-go v1.22.5 // indirect
-	github.com/cloudflare/circl v1.6.1 // indirect
+	github.com/cloudflare/circl v1.6.3 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
