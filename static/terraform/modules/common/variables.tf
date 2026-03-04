@@ -28,7 +28,7 @@ variable "ingress_rules" {
     port           = number
     cidr_ipv4      = optional(string)
     prefix_list_id = optional(string)
-    description    = string
+    description    = optional(string)
   }))
   description = "List of security group ingress rules"
 }

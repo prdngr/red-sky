@@ -2,7 +2,7 @@ package internal
 
 import (
 	"crypto/sha256"
-	"fmt"
+	"encoding/json"
 	"io/fs"
 	"log"
 	"os"
@@ -117,24 +117,40 @@ func fileNeedsUpdate(path string, data []byte) bool {
 	return sha256.Sum256(existingData) != sha256.Sum256(data)
 }
 
-func writeVarFile(varFilePath string, vars map[string]string) error {
+func writeVarFile(varFilePath string, vars TerraformVariables) error {
 	varFile, err := os.Create(varFilePath)
 	if err != nil {
 		return err
 	}
 	defer varFile.Close()
 
-	for key, value := range vars {
-		if _, err = fmt.Fprintf(varFile, "%s = \"%s\"\n", key, value); err != nil {
-			return err
-		}
+	jsonData, err := json.MarshalIndent(vars, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	if _, err := varFile.Write(jsonData); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func readVarsFile(varFilePath string, vars *TerraformVariables) error {
+	jsonData, err := os.ReadFile(varFilePath)
+	if err != nil {
+		return err
+	}
+
+	if err := json.Unmarshal(jsonData, vars); err != nil {
+		return err
 	}
 
 	return nil
 }
 
 func getVarFilePath(workspaceName string) string {
-	varFile, err := xdg.DataFile(terraformWorkingDir + workspaceName + ".tfvars")
+	varFile, err := xdg.DataFile(terraformWorkingDir + workspaceName + ".tfvars.json")
 	if err != nil {
 		log.Fatalf("error searching for tfvars file: %s", err)
 	}

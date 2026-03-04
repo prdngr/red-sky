@@ -28,7 +28,7 @@ func runDestroy(cmd *cobra.Command, args []string) {
 			continue
 		}
 
-		tf.DestroyDeployment(profile, deploymentId)
+		tf.DestroyDeployment(deploymentId)
 		fmt.Printf("▶ Destroyed deployment: %s\n", deploymentId)
 	}
 }

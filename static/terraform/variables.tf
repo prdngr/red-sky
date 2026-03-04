@@ -32,3 +32,11 @@ variable "deployment_type" {
     error_message = "Deployment type must be either 'nessus', 'kali', or 'c2'"
   }
 }
+
+variable "ingress_rules" {
+  type = list(object({
+    port      = number
+    cidr_ipv4 = string
+  }))
+  description = "Additional ingress rules"
+}

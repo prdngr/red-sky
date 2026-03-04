@@ -28,12 +28,15 @@ module "common" {
   ami_id        = local.ami_ids[var.deployment_type]
   user_data     = local.user_data[var.deployment_type]
   instance_type = local.instance_type[var.deployment_type]
-  ingress_rules = local.ingress_rules[var.deployment_type]
+  ingress_rules = (var.ingress_rules != null
+    ? concat(local.ingress_rules[var.deployment_type], var.ingress_rules)
+    : local.ingress_rules[var.deployment_type]
+  )
 }
 
 module "cdn" {
   source = "./modules/cdn"
 
-  count  = var.deployment_type == "c2" ? 1 : 0
+  count         = var.deployment_type == "c2" ? 1 : 0
   origin_domain = module.common.instance_fqdn
 }

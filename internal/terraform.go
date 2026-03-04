@@ -20,6 +20,22 @@ type Terraform struct {
 	instance *tfexec.Terraform
 }
 
+type IngressRule struct {
+	Cidr string `json:"cidr_ipv4"`
+	Port uint   `json:"port"`
+}
+
+type TerraformVariables struct {
+	Profile        string `json:"aws_profile"`
+	Region         string `json:"aws_region"`
+	KeyDirectory   string `json:"key_directory"`
+	DeploymentId   string `json:"deployment_id"`
+	DeploymentType string `json:"deployment_type"`
+	AllowedIP      string `json:"allowed_ip"`
+
+	IngressRules []IngressRule `json:"ingress_rules"`
+}
+
 type TerraformOutput struct {
 	DeploymentId  string
 	InstanceIp    string
@@ -97,16 +113,16 @@ func (tf *Terraform) ApplyDeployment(profile string, region string, deploymentTy
 
 	workspaceName := tf.CreateWorkspace()
 
-	vars := map[string]string{
-		"aws_profile":     profile,
-		"aws_region":      region,
-		"key_directory":   getRedSkyDir(),
-		"deployment_id":   workspaceName,
-		"deployment_type": deploymentType,
+	vars := TerraformVariables{
+		Profile:        profile,
+		Region:         region,
+		KeyDirectory:   getRedSkyDir(),
+		DeploymentId:   workspaceName,
+		DeploymentType: deploymentType,
 	}
 
 	if allowedIp.To4() != nil && !allowedIp.IsLoopback() {
-		vars["allowed_ip"] = allowedIp.String()
+		vars.AllowedIP = allowedIp.String()
 	}
 
 	varFilePath := getVarFilePath(workspaceName)
@@ -126,7 +142,43 @@ func (tf *Terraform) ApplyDeployment(profile string, region string, deploymentTy
 	StopSpinner()
 }
 
-func (tf *Terraform) DestroyDeployment(profile string, workspaceName string) {
+func (tf *Terraform) UpdateDeployment(workspaceName string, cidrs []net.IPNet, ports []uint) {
+	StartSpinner("Updating deployment")
+
+	if err := tf.instance.WorkspaceSelect(context.Background(), workspaceName); err != nil {
+		log.Fatalf("error selecting Terraform workspace: %s", err)
+	}
+
+	varFilePath := getVarFilePath(workspaceName)
+
+	var vars TerraformVariables
+	if err := readVarsFile(varFilePath, &vars); err != nil {
+		log.Fatalf("error reading tfvars file: %s", err)
+	}
+
+	for index, cidr := range cidrs {
+		ingressRule := IngressRule{
+			Cidr: cidr.String(),
+			Port: ports[index],
+		}
+
+		vars.IngressRules = append(vars.IngressRules, ingressRule)
+	}
+
+	if err := writeVarFile(varFilePath, vars); err != nil {
+		StopSpinnerError("Deployment failed")
+		log.Fatalf("error updating tfvars file: %s", err)
+	}
+
+	if err := tf.instance.Apply(context.Background(), tfexec.VarFile(varFilePath)); err != nil {
+		StopSpinnerError("Deployment failed")
+		log.Fatalf("error deploying: %s", err)
+	}
+
+	StopSpinner()
+}
+
+func (tf *Terraform) DestroyDeployment(workspaceName string) {
 	StartSpinner("Destroying deployment")
 
 	if err := tf.instance.WorkspaceSelect(context.Background(), workspaceName); err != nil {
