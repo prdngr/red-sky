@@ -18,10 +18,10 @@ variable "key_directory" {
   description = "The directory to store the SSH private key in"
 }
 
-variable "allowed_ip" {
+variable "admin_cidr" {
   type        = string
   default     = null
-  description = "The allow-listed IP address for ingress traffic"
+  description = "The allow-listed admin CIDR for ingress traffic"
 }
 
 variable "deployment_type" {

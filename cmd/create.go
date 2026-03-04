@@ -13,8 +13,8 @@ import (
 var (
 	profile        string
 	region         = "eu-central-1"
-	autoIp         = false
-	allowedIp      = net.ParseIP("127.0.0.1")
+	adminCidr      net.IPNet
+	autoAdminCidr  = false
 	deploymentType string
 )
 
@@ -33,29 +33,29 @@ func runCreate(cmd *cobra.Command, args []string) {
 
 	internal.InitializeAwsSession(profile, region)
 
-	if autoIp {
-		if publicIp, err := internal.GetPublicIp(); err != nil {
+	if autoAdminCidr {
+		if _, publicCidr, err := internal.GetPublicIp(); err != nil {
 			log.Fatalf("error determining public IP address: %s", err)
 		} else {
-			allowedIp = publicIp
+			adminCidr = *publicCidr
 		}
 	}
 
 	tf := (*internal.Terraform).New(nil)
 
-	tf.ApplyDeployment(profile, region, deploymentType, allowedIp)
+	tf.ApplyDeployment(profile, region, deploymentType, adminCidr)
 	details := tf.GetDeploymentDetails()
 
 	internal.PrintHeader("Deployment Summary")
 
 	fmt.Printf("▶ Deployment ID: %s\n", details.DeploymentId)
-	fmt.Printf("▶ Allowed IP address: %s\n", allowedIp)
+	fmt.Printf("▶ Allowed admin CIDR: %s\n", adminCidr.String())
 
 	internal.PrintHeader("Connection Details")
 
 	switch deploymentType {
 	case "nessus":
-		if allowedIp.IsLoopback() {
+		if adminCidr.IP == nil {
 			fmt.Println("▶ Use the following command to forward the Nessus web interface locally, then access it via https://localhost:8834:")
 			color.Cyan("  $ ssh -N -L 8834:127.0.0.1:8834 -i '%s' ec2-user@%s", details.SshKeyFile, details.InstanceIp)
 		} else {
@@ -68,7 +68,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 		fmt.Println("▶ Use the following command to SSH into the Kali instance:")
 		color.Cyan("  $ ssh -i '%s' kali@%s", details.SshKeyFile, details.InstanceIp)
 	case "c2":
-		if allowedIp.IsLoopback() {
+		if adminCidr.IP == nil {
 			fmt.Println("▶ Use the following command to forward the C2 web interface locally, then access it via https://localhost:8834:")
 			color.Cyan("  $ ssh -N -L 7443:127.0.0.1:7443 -i '%s' kali@%s", details.SshKeyFile, details.InstanceIp)
 		} else {
@@ -87,9 +87,9 @@ func init() {
 	createCmd.Flags().StringVarP(&profile, "profile", "p", "", "AWS profile")
 	createCmd.Flags().StringVarP(&region, "region", "r", region, "AWS region")
 	createCmd.Flags().StringVarP(&deploymentType, "type", "t", "", "Deployment type (nessus, kali, or c2)")
-	createCmd.Flags().IPVar(&allowedIp, "allowed-ip", allowedIp, "allow-listed IP address")
-	createCmd.Flags().BoolVar(&autoIp, "auto-ip", autoIp, "automatically determine allow-listed IP")
+	createCmd.Flags().IPNetVar(&adminCidr, "admin-cidr", adminCidr, "allow-listed admin CIDR")
+	createCmd.Flags().BoolVar(&autoAdminCidr, "auto-admin-cidr", autoAdminCidr, "automatically determine the admin CIDR")
 
 	createCmd.MarkFlagRequired("type")
-	createCmd.MarkFlagsMutuallyExclusive("allowed-ip", "auto-ip")
+	createCmd.MarkFlagsMutuallyExclusive("admin-cidr", "auto-admin-cidr")
 }

@@ -21,31 +21,31 @@ locals {
     nessus = [
       {
         port        = 22
-        cidr_ipv4   = var.allowed_ip == null ? "0.0.0.0/0" : "${var.allowed_ip}/32"
+        cidr_ipv4   = var.admin_cidr == null ? "0.0.0.0/0" : var.admin_cidr
         description = "Allow SSH access"
       },
       {
         port        = 8834
-        cidr_ipv4   = var.allowed_ip == null ? "127.0.0.1/32" : "${var.allowed_ip}/32"
+        cidr_ipv4   = var.admin_cidr == null ? "127.0.0.1/32" : var.admin_cidr
         description = "Allow Nessus interface access"
       }
     ],
     kali = [
       {
         port        = 22
-        cidr_ipv4   = var.allowed_ip == null ? "0.0.0.0/0" : "${var.allowed_ip}/32"
+        cidr_ipv4   = var.admin_cidr == null ? "0.0.0.0/0" : var.admin_cidr
         description = "Allow SSH access"
       }
     ],
     c2 = [
       {
         port        = 22
-        cidr_ipv4   = var.allowed_ip == null ? "0.0.0.0/0" : "${var.allowed_ip}/32"
+        cidr_ipv4   = var.admin_cidr == null ? "0.0.0.0/0" : var.admin_cidr
         description = "Allow SSH access"
       },
       {
         port        = 7443
-        cidr_ipv4   = var.allowed_ip == null ? "127.0.0.1/32" : "${var.allowed_ip}/32"
+        cidr_ipv4   = var.admin_cidr == null ? "127.0.0.1/32" : var.admin_cidr
         description = "Allow Mythic interface access"
       },
       {

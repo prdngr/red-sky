@@ -31,7 +31,7 @@ type TerraformVariables struct {
 	KeyDirectory   string `json:"key_directory"`
 	DeploymentId   string `json:"deployment_id"`
 	DeploymentType string `json:"deployment_type"`
-	AllowedIP      string `json:"allowed_ip"`
+	AdminCidr      string `json:"admin_cidr,omitempty"`
 
 	IngressRules []IngressRule `json:"ingress_rules"`
 }
@@ -108,7 +108,7 @@ func (tf *Terraform) DeleteWorkspace(workspace string) {
 	}
 }
 
-func (tf *Terraform) ApplyDeployment(profile string, region string, deploymentType string, allowedIp net.IP) {
+func (tf *Terraform) ApplyDeployment(profile string, region string, deploymentType string, adminCidr net.IPNet) {
 	StartSpinner("Executing deployment")
 
 	workspaceName := tf.CreateWorkspace()
@@ -121,8 +121,8 @@ func (tf *Terraform) ApplyDeployment(profile string, region string, deploymentTy
 		DeploymentType: deploymentType,
 	}
 
-	if allowedIp.To4() != nil && !allowedIp.IsLoopback() {
-		vars.AllowedIP = allowedIp.String()
+	if adminCidr.IP != nil {
+		vars.AdminCidr = adminCidr.String()
 	}
 
 	varFilePath := getVarFilePath(workspaceName)
