@@ -108,7 +108,7 @@ func (tf *Terraform) DeleteWorkspace(workspace string) {
 	}
 }
 
-func (tf *Terraform) ApplyDeployment(profile string, region string, deploymentType string, adminCidr net.IPNet) {
+func (tf *Terraform) ApplyDeployment(profile string, region string, deploymentType string, adminCidr net.IPNet, ingressRules []IngressRule) {
 	StartSpinner("Executing deployment")
 
 	workspaceName := tf.CreateWorkspace()
@@ -119,6 +119,10 @@ func (tf *Terraform) ApplyDeployment(profile string, region string, deploymentTy
 		KeyDirectory:   getRedSkyDir(),
 		DeploymentId:   workspaceName,
 		DeploymentType: deploymentType,
+	}
+
+	for _, ingressRule := range ingressRules {
+		vars.IngressRules = append(vars.IngressRules, ingressRule)
 	}
 
 	if adminCidr.IP != nil {
@@ -142,7 +146,7 @@ func (tf *Terraform) ApplyDeployment(profile string, region string, deploymentTy
 	StopSpinner()
 }
 
-func (tf *Terraform) UpdateDeployment(workspaceName string, cidrs []net.IPNet, ports []uint) {
+func (tf *Terraform) UpdateDeployment(workspaceName string, ingressRules []IngressRule) {
 	StartSpinner("Updating deployment")
 
 	if err := tf.instance.WorkspaceSelect(context.Background(), workspaceName); err != nil {
@@ -156,12 +160,7 @@ func (tf *Terraform) UpdateDeployment(workspaceName string, cidrs []net.IPNet, p
 		log.Fatalf("error reading tfvars file: %s", err)
 	}
 
-	for index, cidr := range cidrs {
-		ingressRule := IngressRule{
-			Cidr: cidr.String(),
-			Port: ports[index],
-		}
-
+	for _, ingressRule := range ingressRules {
 		vars.IngressRules = append(vars.IngressRules, ingressRule)
 	}
 

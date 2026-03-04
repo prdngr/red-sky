@@ -2,16 +2,9 @@ package cmd
 
 import (
 	"fmt"
-	"log"
-	"net"
 
 	"github.com/prdngr/red-sky/internal"
 	"github.com/spf13/cobra"
-)
-
-var (
-	cidrs []net.IPNet
-	ports []uint
 )
 
 var updateCmd = &cobra.Command{
@@ -23,12 +16,8 @@ var updateCmd = &cobra.Command{
 }
 
 func runUpdate(cmd *cobra.Command, args []string) {
-	if len(cidrs) != len(ports) {
-		log.Fatalf("CIDRs and ports must be of same length.")
-	}
-
 	tf := (*internal.Terraform).New(nil)
-	tf.UpdateDeployment(args[0], cidrs, ports)
+	tf.UpdateDeployment(args[0], ingressRules)
 
 	internal.PrintHeader("Deployment Summary")
 
@@ -38,9 +27,7 @@ func runUpdate(cmd *cobra.Command, args []string) {
 func init() {
 	rootCmd.AddCommand(updateCmd)
 
-	updateCmd.Flags().IPNetSliceVar(&cidrs, "cidrs", nil, "8.8.8.8/32[,...]")
-	updateCmd.Flags().UintSliceVar(&ports, "ports", nil, "443[,...]")
+	updateCmd.Flags().Var(newIngressRuleSliceValue(nil, &ingressRules), "ingress-rules", "additional ingress rules (CIDR:port)")
 
-	updateCmd.MarkFlagRequired("cidrs")
-	updateCmd.MarkFlagRequired("ports")
+	updateCmd.MarkFlagRequired("ingress-rules")
 }

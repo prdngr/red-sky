@@ -15,7 +15,8 @@ var (
 	region         = "eu-central-1"
 	adminCidr      net.IPNet
 	autoAdminCidr  = false
-	deploymentType string
+	deploymentType DeploymentType
+	ingressRules   []internal.IngressRule
 )
 
 var createCmd = &cobra.Command{
@@ -26,11 +27,6 @@ var createCmd = &cobra.Command{
 }
 
 func runCreate(cmd *cobra.Command, args []string) {
-	// TODO Improve input validation and error handling.
-	if deploymentType != "nessus" && deploymentType != "kali" && deploymentType != "c2" {
-		log.Fatalf("Invalid deployment type: '%s'. Allowed types are 'nessus', 'kali', or 'c2'.", deploymentType)
-	}
-
 	internal.InitializeAwsSession(profile, region)
 
 	if autoAdminCidr {
@@ -43,7 +39,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 
 	tf := (*internal.Terraform).New(nil)
 
-	tf.ApplyDeployment(profile, region, deploymentType, adminCidr)
+	tf.ApplyDeployment(profile, region, deploymentType.String(), adminCidr, ingressRules)
 	details := tf.GetDeploymentDetails()
 
 	internal.PrintHeader("Deployment Summary")
@@ -54,7 +50,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 	internal.PrintHeader("Connection Details")
 
 	switch deploymentType {
-	case "nessus":
+	case deploymentTypeNessus:
 		if adminCidr.IP == nil {
 			fmt.Println("▶ Use the following command to forward the Nessus web interface locally, then access it via https://localhost:8834:")
 			color.Cyan("  $ ssh -N -L 8834:127.0.0.1:8834 -i '%s' ec2-user@%s", details.SshKeyFile, details.InstanceIp)
@@ -64,10 +60,10 @@ func runCreate(cmd *cobra.Command, args []string) {
 
 		fmt.Println("▶ Use the following command to SSH into the Nessus instance:")
 		color.Cyan("  $ ssh -i '%s' ec2-user@%s", details.SshKeyFile, details.InstanceIp)
-	case "kali":
+	case deploymentTypeKali:
 		fmt.Println("▶ Use the following command to SSH into the Kali instance:")
 		color.Cyan("  $ ssh -i '%s' kali@%s", details.SshKeyFile, details.InstanceIp)
-	case "c2":
+	case deploymentTypeC2:
 		if adminCidr.IP == nil {
 			fmt.Println("▶ Use the following command to forward the C2 web interface locally, then access it via https://localhost:8834:")
 			color.Cyan("  $ ssh -N -L 7443:127.0.0.1:7443 -i '%s' kali@%s", details.SshKeyFile, details.InstanceIp)
@@ -86,9 +82,10 @@ func init() {
 
 	createCmd.Flags().StringVarP(&profile, "profile", "p", "", "AWS profile")
 	createCmd.Flags().StringVarP(&region, "region", "r", region, "AWS region")
-	createCmd.Flags().StringVarP(&deploymentType, "type", "t", "", "Deployment type (nessus, kali, or c2)")
+	createCmd.Flags().VarP(&deploymentType, "type", "t", `deployment type ("nessus", "kali", or "c2")`)
 	createCmd.Flags().IPNetVar(&adminCidr, "admin-cidr", adminCidr, "allow-listed admin CIDR")
-	createCmd.Flags().BoolVar(&autoAdminCidr, "auto-admin-cidr", autoAdminCidr, "automatically determine the admin CIDR")
+	createCmd.Flags().BoolVar(&autoAdminCidr, "auto-admin-cidr", autoAdminCidr, "auto determine the admin CIDR (true or false)")
+	createCmd.Flags().Var(newIngressRuleSliceValue(nil, &ingressRules), "ingress-rules", "additional ingress rules (CIDR:port)")
 
 	createCmd.MarkFlagRequired("type")
 	createCmd.MarkFlagsMutuallyExclusive("admin-cidr", "auto-admin-cidr")
