@@ -49,7 +49,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 	internal.PrintHeader("Deployment Summary")
 
 	fmt.Printf("▶ Deployment ID: %s\n", details.DeploymentId)
-	fmt.Printf("▶ Allowed IP Address: %s\n", allowedIp)
+	fmt.Printf("▶ Allowed IP address: %s\n", allowedIp)
 
 	internal.PrintHeader("Connection Details")
 
