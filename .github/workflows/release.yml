@@ -1,0 +1,29 @@
+name: Release RedSky
+
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: write # Allows the Action to update the release.
+
+jobs:
+  release-matrix:
+    name: Release Matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, darwin]
+        goarch: [amd64, arm64]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+
+      - uses: wangyoucao577/go-release-action@481a2c1a0f1be199722e3e9b74d7199acafc30a8 # v1.53
+        with:
+          ldflags: -X github.com/prdngr/red-sky/internal.buildCommit=${{ github.sha }} -X github.com/prdngr/red-sky/internal.buildVersion=${{ github.event.release.tag_name }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
