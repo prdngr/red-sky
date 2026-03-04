@@ -16,7 +16,7 @@ type spinnerAwareWriter struct {
 var spin = spinner.New(spinner.CharSets[14], 100*time.Millisecond)
 
 func (writer spinnerAwareWriter) Write(data []byte) (int, error) {
-	StopSpinnerError("Operation failed")
+	StopSpinner()
 	return writer.base.Write(data)
 }
 
@@ -34,18 +34,10 @@ func StartSpinner(message string) {
 }
 
 func StopSpinner() {
-	stopSpinner("")
-}
-
-func StopSpinnerError(message string) {
-	stopSpinner("🛑" + " " + message + "\n")
-}
-
-func stopSpinner(message string) {
 	if spin == nil || !spin.Active() {
 		return
 	}
 
-	spin.FinalMSG = message
+	spin.FinalMSG = ""
 	spin.Stop()
 }

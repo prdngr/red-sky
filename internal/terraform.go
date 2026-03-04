@@ -132,13 +132,13 @@ func (tf *Terraform) ApplyDeployment(profile string, region string, deploymentTy
 	varFilePath := getVarFilePath(workspaceName)
 
 	if err := writeVarFile(varFilePath, vars); err != nil {
-		StopSpinnerError("Deployment failed")
+		StopSpinner()
 		tf.DeleteWorkspace(workspaceName)
 		log.Fatalf("error creating tfvars file: %s", err)
 	}
 
 	if err := tf.instance.Apply(context.Background(), tfexec.VarFile(varFilePath)); err != nil {
-		StopSpinnerError("Deployment failed")
+		StopSpinner()
 		tf.DeleteWorkspace(workspaceName)
 		log.Fatalf("error deploying: %s", err)
 	}
@@ -165,12 +165,12 @@ func (tf *Terraform) UpdateDeployment(workspaceName string, ingressRules []Ingre
 	}
 
 	if err := writeVarFile(varFilePath, vars); err != nil {
-		StopSpinnerError("Deployment failed")
+		StopSpinner()
 		log.Fatalf("error updating tfvars file: %s", err)
 	}
 
 	if err := tf.instance.Apply(context.Background(), tfexec.VarFile(varFilePath)); err != nil {
-		StopSpinnerError("Deployment failed")
+		StopSpinner()
 		log.Fatalf("error deploying: %s", err)
 	}
 
