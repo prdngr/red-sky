@@ -34,7 +34,7 @@ $ go install github.com/prdngr/red-sky@latest
 Once installed, the easiest way of spinning up a Kali instance using RedSky looks as follows:
 
 ```bash
-$ red-sky create --type kali --region eu-west-1 --auto-ip
+$ red-sky create --type kali --region eu-west-1 --auto-admin-cidr
 
         ____           _______ __
        / __ \___  ____/ / ___// /____  __
@@ -57,7 +57,7 @@ Deployment Summary
 ------------------
 
 ▶ Deployment ID: d1505235-2e81-49b0-8bb6-3b1b76616b00
-▶ Allowed IP Address: 42.42.42.42
+▶ Allowed admin CIDR: 42.42.42.42/32
 
 Connection Details
 ------------------
