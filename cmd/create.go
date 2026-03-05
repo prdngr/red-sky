@@ -83,9 +83,9 @@ func init() {
 	createCmd.Flags().StringVarP(&profile, "profile", "p", "", "AWS profile")
 	createCmd.Flags().StringVarP(&region, "region", "r", region, "AWS region")
 	createCmd.Flags().VarP(&deploymentType, "type", "t", `deployment type ("nessus", "kali", or "c2")`)
-	createCmd.Flags().IPNetVar(&adminCidr, "admin-cidr", adminCidr, "allow-listed admin CIDR")
-	createCmd.Flags().BoolVar(&autoAdminCidr, "auto-admin-cidr", autoAdminCidr, "auto determine the admin CIDR (true or false)")
-	createCmd.Flags().Var(newIngressRuleSliceValue(nil, &ingressRules), "ingress-rules", "additional ingress rules (CIDR:port)")
+	createCmd.Flags().IPNetVar(&adminCidr, "admin-cidr", adminCidr, "allow-listed admin CIDR for SSH access")
+	createCmd.Flags().BoolVar(&autoAdminCidr, "auto-admin-cidr", autoAdminCidr, "if present, gets the admin CIDR automatically")
+	createCmd.Flags().Var(newIngressRuleSliceValue(nil, &ingressRules), "ingress-rules", "comma-separated list of ingress rules (CIDR:port)")
 
 	createCmd.MarkFlagRequired("type")
 	createCmd.MarkFlagsMutuallyExclusive("admin-cidr", "auto-admin-cidr")

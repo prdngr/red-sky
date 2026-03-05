@@ -27,7 +27,7 @@ func runUpdate(cmd *cobra.Command, args []string) {
 func init() {
 	rootCmd.AddCommand(updateCmd)
 
-	updateCmd.Flags().Var(newIngressRuleSliceValue(nil, &ingressRules), "ingress-rules", "additional ingress rules (CIDR:port)")
+	updateCmd.Flags().Var(newIngressRuleSliceValue(nil, &ingressRules), "ingress-rules", "comma-separated list of ingress rules (CIDR:port)")
 
 	updateCmd.MarkFlagRequired("ingress-rules")
 }

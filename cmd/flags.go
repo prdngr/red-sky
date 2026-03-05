@@ -24,7 +24,7 @@ func (dt *DeploymentType) String() string {
 
 func (dt *DeploymentType) Set(value string) error {
 	switch value {
-	case "nessus", "kali", "c2":
+	case string(deploymentTypeNessus), string(deploymentTypeKali), string(deploymentTypeC2):
 		*dt = DeploymentType(value)
 		return nil
 	default:
