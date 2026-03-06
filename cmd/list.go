@@ -7,11 +7,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var listCmd = &cobra.Command{
-	Use:     "list",
-	Short:   "List deployments",
-	GroupID: groupMain,
-	Run:     runList,
+var ListCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List deployments",
+	Run:   runList,
 }
 
 func runList(cmd *cobra.Command, args []string) {
@@ -27,8 +26,4 @@ func runList(cmd *cobra.Command, args []string) {
 	for _, workspace := range workspaces {
 		fmt.Printf("▶ %s\n", workspace)
 	}
-}
-
-func init() {
-	rootCmd.AddCommand(listCmd)
 }

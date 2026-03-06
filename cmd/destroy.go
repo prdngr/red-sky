@@ -8,12 +8,11 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-var destroyCmd = &cobra.Command{
-	Use:     "destroy DEPLOYMENT [DEPLOYMENT...]",
-	Short:   "Destroy deployment(s)",
-	Args:    cobra.MinimumNArgs(1),
-	GroupID: groupMain,
-	Run:     runDestroy,
+var DestroyCmd = &cobra.Command{
+	Use:   "destroy DEPLOYMENT [DEPLOYMENT...]",
+	Short: "Destroy deployment(s)",
+	Args:  cobra.MinimumNArgs(1),
+	Run:   runDestroy,
 }
 
 func runDestroy(cmd *cobra.Command, args []string) {
@@ -31,8 +30,4 @@ func runDestroy(cmd *cobra.Command, args []string) {
 		tf.DestroyDeployment(deploymentId)
 		fmt.Printf("▶ Destroyed deployment: %s\n", deploymentId)
 	}
-}
-
-func init() {
-	rootCmd.AddCommand(destroyCmd)
 }

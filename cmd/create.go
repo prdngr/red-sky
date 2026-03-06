@@ -19,11 +19,10 @@ var (
 	ingressRules   []internal.IngressRule
 )
 
-var createCmd = &cobra.Command{
-	Use:     "create",
-	Short:   "Create deployment",
-	GroupID: groupMain,
-	Run:     runCreate,
+var CreateCmd = &cobra.Command{
+	Use:   "create",
+	Short: "Create deployment",
+	Run:   runCreate,
 }
 
 func runCreate(cmd *cobra.Command, args []string) {
@@ -78,15 +77,13 @@ func runCreate(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	rootCmd.AddCommand(createCmd)
+	CreateCmd.Flags().StringVarP(&profile, "profile", "p", "", "AWS profile")
+	CreateCmd.Flags().StringVarP(&region, "region", "r", region, "AWS region")
+	CreateCmd.Flags().VarP(&deploymentType, "type", "t", `deployment type ("nessus", "kali", or "c2")`)
+	CreateCmd.Flags().IPNetVar(&adminCidr, "admin-cidr", adminCidr, "allow-listed admin CIDR for SSH access")
+	CreateCmd.Flags().BoolVar(&autoAdminCidr, "auto-admin-cidr", autoAdminCidr, "if present, gets the admin CIDR automatically")
+	CreateCmd.Flags().Var(newIngressRuleSliceValue(nil, &ingressRules), "ingress-rules", "comma-separated list of ingress rules (CIDR:port)")
 
-	createCmd.Flags().StringVarP(&profile, "profile", "p", "", "AWS profile")
-	createCmd.Flags().StringVarP(&region, "region", "r", region, "AWS region")
-	createCmd.Flags().VarP(&deploymentType, "type", "t", `deployment type ("nessus", "kali", or "c2")`)
-	createCmd.Flags().IPNetVar(&adminCidr, "admin-cidr", adminCidr, "allow-listed admin CIDR for SSH access")
-	createCmd.Flags().BoolVar(&autoAdminCidr, "auto-admin-cidr", autoAdminCidr, "if present, gets the admin CIDR automatically")
-	createCmd.Flags().Var(newIngressRuleSliceValue(nil, &ingressRules), "ingress-rules", "comma-separated list of ingress rules (CIDR:port)")
-
-	createCmd.MarkFlagRequired("type")
-	createCmd.MarkFlagsMutuallyExclusive("admin-cidr", "auto-admin-cidr")
+	CreateCmd.MarkFlagRequired("type")
+	CreateCmd.MarkFlagsMutuallyExclusive("admin-cidr", "auto-admin-cidr")
 }

@@ -7,12 +7,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var updateCmd = &cobra.Command{
-	Use:     "update DEPLOYMENT",
-	Short:   "Update deployment",
-	Args:    cobra.ExactArgs(1),
-	GroupID: groupMain,
-	Run:     runUpdate,
+var UpdateCmd = &cobra.Command{
+	Use:   "update DEPLOYMENT",
+	Short: "Update deployment",
+	Args:  cobra.ExactArgs(1),
+	Run:   runUpdate,
 }
 
 func runUpdate(cmd *cobra.Command, args []string) {
@@ -25,9 +24,7 @@ func runUpdate(cmd *cobra.Command, args []string) {
 }
 
 func init() {
-	rootCmd.AddCommand(updateCmd)
+	UpdateCmd.Flags().Var(newIngressRuleSliceValue(nil, &ingressRules), "ingress-rules", "comma-separated list of ingress rules (CIDR:port)")
 
-	updateCmd.Flags().Var(newIngressRuleSliceValue(nil, &ingressRules), "ingress-rules", "comma-separated list of ingress rules (CIDR:port)")
-
-	updateCmd.MarkFlagRequired("ingress-rules")
+	UpdateCmd.MarkFlagRequired("ingress-rules")
 }
