@@ -52,7 +52,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 	case deploymentTypeNessus:
 		if adminCidr.IP == nil {
 			fmt.Println("▶ Use the following command to forward the Nessus web interface locally, then access it via https://localhost:8834:")
-			color.Cyan("  $ ssh -N -L 8834:127.0.0.1:8834 -i '%s' ec2-user@%s", details.SshKeyFile, details.InstanceIp)
+			color.Cyan("  $ ssh -N -L 8834:127.0.0.1:8834 -i '%s' ubuntu@%s", details.SshKeyFile, details.InstanceIp)
 		} else {
 			fmt.Printf("▶ Access the Nessus web interface via https://%s:8834\n", details.InstanceIp)
 		}

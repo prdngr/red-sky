@@ -3,7 +3,7 @@ data "aws_ami" "nessus" {
 
   filter {
     name   = "name"
-    values = ["Nessus *"]
+    values = ["tenable-nessus/ubuntu-lts/x86_64/*"]
   }
 
   filter {
@@ -19,7 +19,7 @@ data "aws_ami" "kali" {
 
   filter {
     name   = "name"
-    values = ["kali-last-snapshot-amd64-*"]
+    values = ["debian-kali-last-snapshot-amd64-*"]
   }
 
   filter {
