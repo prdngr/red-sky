@@ -45,7 +45,7 @@ type TerraformOutput struct {
 
 const (
 	defaultWorkspace = "default"
-	terraformVersion = "~> 1.10"
+	terraformVersion = "~> 1.15"
 )
 
 func (*Terraform) New() *Terraform {
