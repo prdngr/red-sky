@@ -1,33 +1,9 @@
-data "aws_ami" "nessus" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["tenable-nessus/ubuntu-lts/x86_64/*"]
-  }
-
-  filter {
-    name   = "product-code"
-    values = ["8fn69npzmbzcs4blc4583jd0y"]
-  }
-
-  owners = ["aws-marketplace"]
+data "aws_ssm_parameter" "nessus" {
+  name = "/aws/service/marketplace/prod-nkomv2twhnmiq/latest"
 }
 
-data "aws_ami" "kali" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["debian-kali-last-snapshot-amd64-*"]
-  }
-
-  filter {
-    name   = "product-code"
-    values = ["7lgvy7mt78lgoi4lant0znp5h"]
-  }
-
-  owners = ["aws-marketplace"]
+data "aws_ssm_parameter" "kali" {
+  name = "/aws/service/marketplace/804fcc46-63fc-4eb6-85a1-50e66d6c7215/latest"
 }
 
 data "aws_ec2_managed_prefix_list" "cloudfront" {

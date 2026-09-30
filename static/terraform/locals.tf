@@ -1,8 +1,8 @@
 locals {
   ami_ids = {
-    nessus = data.aws_ami.nessus.id
-    kali   = data.aws_ami.kali.id
-    c2     = data.aws_ami.kali.id
+    nessus = data.aws_ssm_parameter.nessus.insecure_value
+    kali   = data.aws_ssm_parameter.kali.insecure_value
+    c2     = data.aws_ssm_parameter.kali.insecure_value
   }
 
   user_data = {
