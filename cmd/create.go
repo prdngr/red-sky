@@ -58,7 +58,7 @@ func runCreate(cmd *cobra.Command, args []string) {
 		}
 
 		fmt.Println("▶ Use the following command to SSH into the Nessus instance:")
-		color.Cyan("  $ ssh -i '%s' ec2-user@%s", details.SshKeyFile, details.InstanceIp)
+		color.Cyan("  $ ssh -i '%s' ubuntu@%s", details.SshKeyFile, details.InstanceIp)
 	case deploymentTypeKali:
 		fmt.Println("▶ Use the following command to SSH into the Kali instance:")
 		color.Cyan("  $ ssh -i '%s' kali@%s", details.SshKeyFile, details.InstanceIp)
